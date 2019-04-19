@@ -1,4 +1,4 @@
-package vtypes
+package atoms
 
 import (
 	"errors"
@@ -50,6 +50,22 @@ func (expr FracExpression) Sum(a IMathExpression) IMathExpression {
 	return expr
 }
 
+// Substract return a sum.
+func (expr FracExpression) Substract(a IMathExpression) IMathExpression {
+	if a.TypeID() == TypeIntegerExpression {
+		return a.Substract(expr)
+	}
+
+	if expr.TypeID() == a.TypeID() {
+		simplified, _ := FracExpression{
+			Numerator:   expr.Numerator.Multiply(a.(FracExpression).Denominator).Substract(a.(FracExpression).Numerator.Multiply(expr.Denominator)),
+			Denominator: expr.Denominator.Multiply(a.(FracExpression).Denominator)}.Simplify()
+
+		return simplified
+	}
+	return expr
+}
+
 // Multiply return a simplified version of expression.
 func (expr FracExpression) Multiply(a IMathExpression) IMathExpression {
 	if a.TypeID() == TypeIntegerExpression {
@@ -64,6 +80,17 @@ func (expr FracExpression) Multiply(a IMathExpression) IMathExpression {
 		return simplified
 	}
 	return expr
+}
+
+// Divide return a simplified version of expression.
+func (expr FracExpression) Divide(a IMathExpression) (IMathExpression, error) {
+	a, err := a.Inverse()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return expr.Multiply(a), nil
 }
 
 // Derivative of current expression.

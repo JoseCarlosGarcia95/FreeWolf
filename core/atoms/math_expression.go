@@ -1,4 +1,4 @@
-package vtypes
+package atoms
 
 import (
 	"bytes"
@@ -24,6 +24,10 @@ const (
 	OperatorSum OperatorsBetweenExpressions = 0
 	// OperatorMult represent abstract multiplication.
 	OperatorMult OperatorsBetweenExpressions = 1
+	// OperatorSubstract represent abstract substraction.
+	OperatorSubstract OperatorsBetweenExpressions = 2
+	// OperatorDivide represent abstract division.
+	OperatorDivide OperatorsBetweenExpressions = 3
 )
 
 // IMathExpression abstract the idea of MathExpression.
@@ -33,7 +37,9 @@ type IMathExpression interface {
 	ToLaTeX() string
 	TypeID() TypeExpression
 	Sum(IMathExpression) IMathExpression
+	Substract(IMathExpression) IMathExpression
 	Multiply(IMathExpression) IMathExpression
+	Divide(IMathExpression) (IMathExpression, error)
 	Inverse() (IMathExpression, error)
 	Derivative() (IMathExpression, error)
 }
@@ -46,8 +52,17 @@ type MathExpression struct {
 
 // Sum a new expression to current expression
 func (expr MathExpression) Sum(a IMathExpression) IMathExpression {
-	expr.Parts = append(expr.Parts, a)
+
 	expr.Operators = append(expr.Operators, OperatorSum)
+	expr.Parts = append(expr.Parts, a)
+
+	return expr
+}
+
+// Substract a new expression to current expression
+func (expr MathExpression) Substract(a IMathExpression) IMathExpression {
+	expr.Parts = append(expr.Parts, a)
+	expr.Operators = append(expr.Operators, OperatorSubstract)
 
 	return expr
 }
@@ -58,6 +73,14 @@ func (expr MathExpression) Multiply(a IMathExpression) IMathExpression {
 	expr.Operators = append(expr.Operators, OperatorMult)
 
 	return expr
+}
+
+// Divide expression by another expression.
+func (expr MathExpression) Divide(a IMathExpression) (IMathExpression, error) {
+	expr.Parts = append(expr.Parts, a)
+	expr.Operators = append(expr.Operators, OperatorDivide)
+
+	return expr, nil
 }
 
 // Derivative of the current expression
@@ -75,7 +98,10 @@ func (expr MathExpression) Simplify() (IMathExpression, error) {
 	if len(expr.Parts) == 1 {
 		return expr.Parts[0].Simplify()
 	}
-	return expr, nil
+
+	newexpr := expr.ComputeExpression(0, 1)
+
+	return newexpr, nil
 }
 
 // ToString convert current expression to string.
@@ -98,6 +124,10 @@ func (op OperatorsBetweenExpressions) String() string {
 		return "+"
 	case OperatorMult:
 		return "*"
+	case OperatorDivide:
+		return "/"
+	case OperatorSubstract:
+		return "-"
 	}
 
 	return ""
@@ -119,10 +149,4 @@ func (expr MathExpression) ToLaTeX() string {
 // TypeID return type of ID of current MathExpression
 func (expr MathExpression) TypeID() TypeExpression {
 	return TypeExpressionGroup
-}
-
-// Evaluate the current MathExpression
-func (expr MathExpression) Evaluate() IMathExpression {
-
-	return expr
 }

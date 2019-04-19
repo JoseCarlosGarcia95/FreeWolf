@@ -1,4 +1,4 @@
-package vtypes
+package atoms
 
 import (
 	"fmt"
@@ -30,6 +30,21 @@ func (expr IntegerExpression) Sum(a IMathExpression) IMathExpression {
 	return expr
 }
 
+// Substract return a simplified version of expression.
+func (expr IntegerExpression) Substract(a IMathExpression) IMathExpression {
+
+	if a.TypeID() == expr.TypeID() {
+		return IntegerExpression{Value: big.NewInt(0).Sub(expr.Value, &(*a.(IntegerExpression).Value))}
+	}
+
+	if a.TypeID() == TypeFracExpression {
+		b := IntegerExpression{Value: big.NewInt(1)}
+		return FracExpression{Numerator: expr, Denominator: b}.Substract(a)
+	}
+
+	return expr
+}
+
 // Multiply the product of two elements.
 func (expr IntegerExpression) Multiply(a IMathExpression) IMathExpression {
 
@@ -44,6 +59,17 @@ func (expr IntegerExpression) Multiply(a IMathExpression) IMathExpression {
 	}
 
 	return expr
+}
+
+// Divide the product of two elements.
+func (expr IntegerExpression) Divide(a IMathExpression) (IMathExpression, error) {
+	a, err := a.Inverse()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return expr.Multiply(a), nil
 }
 
 // Inverse expression by another expression.
