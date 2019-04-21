@@ -2,7 +2,6 @@ package atoms
 
 import (
 	"errors"
-	"fmt"
 )
 
 // ComputeOp calculate the given operation.
@@ -23,34 +22,30 @@ func ComputeOp(op OperatorsBetweenExpressions, a IMathExpression, b IMathExpress
 
 // ComputeExpression calculate the current expression.
 // Source: https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing
-func (expr MathExpression) ComputeExpression(index int, minPrecedence int) IMathExpression {
-	var err error
-	atomLHS := expr.Parts[index]
+func (expr MathExpression) ComputeExpression(index *int, minPrecedence int) IMathExpression {
+	atomLHS := expr.Parts[*index]
 
-	for index+1 < len(expr.Parts) {
-		operator := expr.Operators[index+1]
+	for {
+		if *index >= len(expr.Operators)-1 {
+			break
+		}
 
+		operator := expr.Operators[*index+1]
 		precedence, right := operator.GetPrecedenceLevel()
 
 		if precedence < minPrecedence {
 			break
 		}
 
-		nextMintPrec := precedence
+		nextMinPrec := precedence
 
 		if !right {
-			nextMintPrec++
+			nextMinPrec++
 		}
 
-		index++
-
-		atomRHS := expr.ComputeExpression(index, nextMintPrec)
-		atomLHS, err = ComputeOp(operator, atomLHS, atomRHS)
-
-		if err != nil {
-			fmt.Println(err)
-			return nil
-		}
+		*index++
+		atomRHS := expr.ComputeExpression(index, nextMinPrec)
+		atomLHS, _ = ComputeOp(operator, atomLHS, atomRHS)
 	}
 
 	return atomLHS

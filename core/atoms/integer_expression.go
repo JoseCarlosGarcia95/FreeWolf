@@ -1,6 +1,7 @@
 package atoms
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 )
@@ -10,9 +11,33 @@ type IntegerExpression struct {
 	Value *big.Int
 }
 
+// NewIntegerFromInteger return a IntegerExpression from language integer.
+func NewIntegerFromInteger(a int64) IntegerExpression {
+	nint := IntegerExpression{Value: big.NewInt(a)}
+	return nint
+}
+
 // Simplify return a simplified version of expression.
 func (expr IntegerExpression) Simplify() (IMathExpression, error) {
 	return expr, nil
+}
+
+// Compare two IMathExpression return 0, if equal and + if a<
+func (expr IntegerExpression) Compare(a IMathExpression) (int, error) {
+	a, _ = a.Simplify()
+	result := 0
+	var err error
+
+	if a.TypeID() == TypeFracExpression {
+		result, err = a.Compare(expr)
+		result = result * -1
+	} else if a.TypeID() == TypeIntegerExpression {
+		c := expr.Substract(a).(IntegerExpression)
+		result = c.Value.Cmp(big.NewInt(0))
+	} else {
+		err = errors.New("unable to compare given expression")
+	}
+	return result, err
 }
 
 // Sum return a simplified version of expression.

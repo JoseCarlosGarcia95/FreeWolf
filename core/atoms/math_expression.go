@@ -42,6 +42,7 @@ type IMathExpression interface {
 	Divide(IMathExpression) (IMathExpression, error)
 	Inverse() (IMathExpression, error)
 	Derivative() (IMathExpression, error)
+	Compare(IMathExpression) (int, error)
 }
 
 // MathExpression abstract the idea of MathExpression.
@@ -57,6 +58,11 @@ func (expr MathExpression) Sum(a IMathExpression) IMathExpression {
 	expr.Parts = append(expr.Parts, a)
 
 	return expr
+}
+
+// Compare two IMathExpression return 0, if equal and + if a<
+func (expr MathExpression) Compare(a IMathExpression) (int, error) {
+	return 0, nil
 }
 
 // Substract a new expression to current expression
@@ -99,7 +105,8 @@ func (expr MathExpression) Simplify() (IMathExpression, error) {
 		return expr.Parts[0].Simplify()
 	}
 
-	newexpr := expr.ComputeExpression(0, 1)
+	index := 0
+	newexpr := expr.ComputeExpression(&index, 1)
 
 	return newexpr, nil
 }

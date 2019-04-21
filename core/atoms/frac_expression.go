@@ -12,6 +12,14 @@ type FracExpression struct {
 	Denominator IMathExpression
 }
 
+// NewFracFromIntegers return a new frac object from two integers.
+func NewFracFromIntegers(x int64, y int64) FracExpression {
+	a := NewIntegerFromInteger(x)
+	b := NewIntegerFromInteger(y)
+
+	return FracExpression{Numerator: a, Denominator: b}
+}
+
 // Simplify could return a new FracExpression or a new Integer expression.
 func (expr FracExpression) Simplify() (IMathExpression, error) {
 	if expr.Numerator.TypeID() == expr.Denominator.TypeID() && expr.Numerator.TypeID() == TypeIntegerExpression {
@@ -20,6 +28,10 @@ func (expr FracExpression) Simplify() (IMathExpression, error) {
 
 		if b.Cmp(big.NewInt(0)) == 0 {
 			return nil, errors.New("denominator should be different of zero")
+		}
+
+		if a.Cmp(big.NewInt(0)) == 0 {
+			return NewIntegerFromInteger(0), nil
 		}
 
 		c := big.NewInt(1).GCD(nil, nil, big.NewInt(1).Abs(a), &(*b))
@@ -91,6 +103,35 @@ func (expr FracExpression) Divide(a IMathExpression) (IMathExpression, error) {
 	}
 
 	return expr.Multiply(a), nil
+}
+
+// Compare two IMathExpression return 0, if equal and + if a<
+func (expr FracExpression) Compare(a IMathExpression) (int, error) {
+	a, _ = a.Simplify()
+	result := 0
+	var err error
+
+	if expr.Numerator.TypeID() == TypeIntegerExpression &&
+		expr.Denominator.TypeID() == TypeIntegerExpression {
+
+		if a.TypeID() == TypeIntegerExpression ||
+			(a.TypeID() == TypeFracExpression &&
+				a.(FracExpression).Numerator.TypeID() == TypeIntegerExpression &&
+				a.(FracExpression).Denominator.TypeID() == TypeIntegerExpression) {
+			c := expr.Substract(a)
+
+			if c.TypeID() == TypeIntegerExpression {
+				result = c.(IntegerExpression).Value.Cmp(big.NewInt(0))
+			} else {
+				result = c.(FracExpression).Numerator.(IntegerExpression).Value.Cmp(big.NewInt(0))
+			}
+		} else {
+			err = errors.New("unable to compare given types")
+		}
+	} else {
+		err = errors.New("unable to compare given types")
+	}
+	return result, err
 }
 
 // Derivative of current expression.

@@ -19,13 +19,13 @@ func main() {
 	m := atoms.MathExpression{}
 
 	expr := m.Sum(c)
-	expr = expr.Multiply(c)
 	expr = expr.Sum(c)
+	expr = expr.Multiply(c)
 	expr = expr.Sum(a)
 
-	fmt.Println(expr.ToLaTeX())
+	fmt.Println(expr)
 
 	expr, _ = expr.Simplify()
 
-	fmt.Println(expr.ToLaTeX())
+	fmt.Println(expr)
 }
