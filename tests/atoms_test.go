@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -86,8 +85,17 @@ func TestComplexMathExpression(t *testing.T) {
 	expr = expr.Sum(a)
 	expr = expr.Multiply(c)
 
-	fmt.Println(expr.ToLaTeX())
 	result, err := expr.Simplify()
-	fmt.Println(result.ToLaTeX())
-	fmt.Println(err)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	expected := atoms.NewIntegerFromInteger(4)
+
+	cmp, err := result.Compare(expected)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if cmp != 0 {
+		t.Errorf("Expression should be 4, but %s", result)
+	}
 }
