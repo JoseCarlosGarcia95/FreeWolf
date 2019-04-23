@@ -99,3 +99,41 @@ func TestComplexMathExpression(t *testing.T) {
 		t.Errorf("Expression should be 4, but %s", result)
 	}
 }
+
+func TestRealSum(t *testing.T) {
+	a := atoms.NewFracFromIntegers(1, 2)
+	b := atoms.NewRealFromFloat(1.2)
+	c := b.Sum(a)
+
+	expected := atoms.NewRealFromFloat(1.7)
+
+	cmp, err := expected.Compare(c)
+
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if cmp != 0 {
+		t.Errorf("Expression should be 1.7, but %s", c)
+	}
+}
+
+func TestRealExpression(t *testing.T) {
+	a := atoms.NewFracFromIntegers(1, 2)
+	b := atoms.NewRealFromFloat(1.2)
+
+	m := atoms.MathExpression{}
+	expr := m.Sum(a)
+	expr = expr.Sum(b)
+
+	c, _ := expr.Simplify()
+	expected := atoms.NewRealFromFloat(1.7)
+
+	cmp, err := expected.Compare(c)
+
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if cmp != 0 {
+		t.Errorf("Expression should be 1.7, but %s", c)
+	}
+}

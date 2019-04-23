@@ -14,6 +14,8 @@ const (
 	TypeFracExpression TypeExpression = 1
 	// TypeExpressionGroup represent a group of expression.
 	TypeExpressionGroup TypeExpression = 2
+	// TypeExpressionReal represent a real number.
+	TypeExpressionReal TypeExpression = 3
 )
 
 // OperatorsBetweenExpressions represent abstract type of operation.
@@ -43,6 +45,7 @@ type IMathExpression interface {
 	Inverse() (IMathExpression, error)
 	Derivative() (IMathExpression, error)
 	Compare(IMathExpression) (int, error)
+	N() IMathExpression
 }
 
 // MathExpression abstract the idea of MathExpression.
@@ -151,6 +154,11 @@ func (expr MathExpression) ToLaTeX() string {
 	}
 
 	return buffer.String()
+}
+
+// N return a numeric value.
+func (expr MathExpression) N() IMathExpression {
+	return expr
 }
 
 // TypeID return type of ID of current MathExpression

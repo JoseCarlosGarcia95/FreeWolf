@@ -58,6 +58,8 @@ func (expr FracExpression) Sum(a IMathExpression) IMathExpression {
 			Denominator: expr.Denominator.Multiply(a.(FracExpression).Denominator)}.Simplify()
 
 		return simplified
+	} else if a.TypeID() == TypeExpressionReal {
+		return a.Sum(expr)
 	}
 	return expr
 }
@@ -74,7 +76,10 @@ func (expr FracExpression) Substract(a IMathExpression) IMathExpression {
 			Denominator: expr.Denominator.Multiply(a.(FracExpression).Denominator)}.Simplify()
 
 		return simplified
+	} else if a.TypeID() == TypeExpressionReal {
+		return a.Substract(expr).Multiply(NewIntegerFromInteger(-1))
 	}
+
 	return expr
 }
 
@@ -90,6 +95,8 @@ func (expr FracExpression) Multiply(a IMathExpression) IMathExpression {
 			Denominator: expr.Denominator.Multiply(a.(FracExpression).Denominator)}.Simplify()
 
 		return simplified
+	} else if a.TypeID() == TypeExpressionReal {
+		return a.Multiply(expr)
 	}
 	return expr
 }
@@ -125,6 +132,9 @@ func (expr FracExpression) Compare(a IMathExpression) (int, error) {
 			} else {
 				result = c.(FracExpression).Numerator.(IntegerExpression).Value.Cmp(big.NewInt(0))
 			}
+		} else if a.TypeID() == TypeExpressionReal {
+			result, err = a.Compare(expr)
+			result *= -1
 		} else {
 			err = errors.New("unable to compare given types")
 		}
@@ -149,6 +159,19 @@ func (expr FracExpression) Inverse() (IMathExpression, error) {
 // ToLaTeX return a representation in LaTeX
 func (expr FracExpression) ToLaTeX() string {
 	return fmt.Sprintf("\\frac{%s}{%s}", expr.Numerator, expr.Denominator)
+}
+
+// N return a numeric value.
+func (expr FracExpression) N() IMathExpression {
+	if expr.Numerator.TypeID() == TypeIntegerExpression && expr.Denominator.TypeID() == TypeIntegerExpression {
+		a := expr.Numerator.N()
+		b := expr.Denominator.N()
+
+		result, _ := a.Divide(b)
+
+		return result
+	}
+	return expr
 }
 
 // ToString convert current expression to string.

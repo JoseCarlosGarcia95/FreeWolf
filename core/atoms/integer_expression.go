@@ -28,7 +28,7 @@ func (expr IntegerExpression) Compare(a IMathExpression) (int, error) {
 	result := 0
 	var err error
 
-	if a.TypeID() == TypeFracExpression {
+	if a.TypeID() == TypeFracExpression || a.TypeID() == TypeExpressionReal {
 		result, err = a.Compare(expr)
 		result = result * -1
 	} else if a.TypeID() == TypeIntegerExpression {
@@ -50,6 +50,8 @@ func (expr IntegerExpression) Sum(a IMathExpression) IMathExpression {
 	if a.TypeID() == TypeFracExpression {
 		b := IntegerExpression{Value: big.NewInt(1)}
 		return FracExpression{Numerator: expr, Denominator: b}.Sum(a)
+	} else if a.TypeID() == TypeExpressionReal {
+		return a.Sum(expr)
 	}
 
 	return expr
@@ -65,6 +67,8 @@ func (expr IntegerExpression) Substract(a IMathExpression) IMathExpression {
 	if a.TypeID() == TypeFracExpression {
 		b := IntegerExpression{Value: big.NewInt(1)}
 		return FracExpression{Numerator: expr, Denominator: b}.Substract(a)
+	} else if a.TypeID() == TypeExpressionReal {
+		return a.Substract(expr).Multiply(NewIntegerFromInteger(-1))
 	}
 
 	return expr
@@ -81,6 +85,8 @@ func (expr IntegerExpression) Multiply(a IMathExpression) IMathExpression {
 		return FracExpression{
 			Numerator:   expr,
 			Denominator: IntegerExpression{Value: big.NewInt(1)}}.Multiply(a)
+	} else if a.TypeID() == TypeExpressionReal {
+		return a.Multiply(expr)
 	}
 
 	return expr
@@ -114,9 +120,14 @@ func (expr IntegerExpression) ToLaTeX() string {
 	return expr.String()
 }
 
-// ToString convert current expression to string.
+// String convert current expression to string.
 func (expr IntegerExpression) String() string {
 	return fmt.Sprintf("%v", expr.Value)
+}
+
+// N return a numeric value.
+func (expr IntegerExpression) N() IMathExpression {
+	return RealExpression{Value: new(big.Float).SetInt(expr.Value)}
 }
 
 // TypeID return an identificator for this type.
