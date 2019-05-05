@@ -53,6 +53,7 @@ func (expr FracExpression) Sum(a IMathExpression) IMathExpression {
 	}
 
 	if expr.TypeID() == a.TypeID() {
+		// TODO: Simplify should be executed only when ComputeExpression ran
 		simplified, _ := FracExpression{
 			Numerator:   expr.Numerator.Multiply(a.(FracExpression).Denominator).Sum(a.(FracExpression).Numerator.Multiply(expr.Denominator)),
 			Denominator: expr.Denominator.Multiply(a.(FracExpression).Denominator)}.Simplify()
@@ -61,7 +62,12 @@ func (expr FracExpression) Sum(a IMathExpression) IMathExpression {
 	} else if a.TypeID() == TypeExpressionReal {
 		return a.Sum(expr)
 	}
-	return expr
+
+	c := MathExpression{}
+	new := c.Sum(expr)
+	new = new.Sum(a)
+
+	return new
 }
 
 // Substract return a sum.
@@ -80,7 +86,11 @@ func (expr FracExpression) Substract(a IMathExpression) IMathExpression {
 		return a.Substract(expr).Multiply(NewIntegerFromInteger(-1))
 	}
 
-	return expr
+	c := MathExpression{}
+	new := c.Sum(expr)
+	new = new.Substract(a)
+
+	return new
 }
 
 // Multiply return a simplified version of expression.
@@ -95,10 +105,14 @@ func (expr FracExpression) Multiply(a IMathExpression) IMathExpression {
 			Denominator: expr.Denominator.Multiply(a.(FracExpression).Denominator)}.Simplify()
 
 		return simplified
-	} else if a.TypeID() == TypeExpressionReal {
+	} else if a.TypeID() == TypeExpressionReal || a.TypeID() == TypeExpressionSymbol {
 		return a.Multiply(expr)
 	}
-	return expr
+	c := MathExpression{}
+	new := c.Sum(expr)
+	new = new.Multiply(a)
+
+	return new
 }
 
 // Divide return a simplified version of expression.

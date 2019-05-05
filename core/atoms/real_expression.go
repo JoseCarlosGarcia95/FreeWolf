@@ -39,7 +39,11 @@ func (expr RealExpression) Sum(a IMathExpression) IMathExpression {
 		return RealExpression{Value: big.NewFloat(0).Add(expr.Value, &(*b.(RealExpression).Value))}
 	}
 
-	return expr
+	c := MathExpression{}
+	new := c.Sum(expr)
+	new = new.Sum(a)
+
+	return new
 }
 
 // Substract return the substract of two math expression.
@@ -50,7 +54,11 @@ func (expr RealExpression) Substract(a IMathExpression) IMathExpression {
 		return RealExpression{Value: big.NewFloat(0).Sub(expr.Value, &(*b.(RealExpression).Value))}
 	}
 
-	return expr
+	c := MathExpression{}
+	new := c.Sum(expr)
+	new = new.Substract(a)
+
+	return new
 }
 
 // Multiply return the sum of two math expression.
@@ -59,9 +67,15 @@ func (expr RealExpression) Multiply(a IMathExpression) IMathExpression {
 
 	if b.TypeID() == expr.TypeID() {
 		return RealExpression{Value: big.NewFloat(0).Mul(expr.Value, &(*b.(RealExpression).Value))}
+	} else if a.TypeID() == TypeExpressionSymbol {
+		return a.Multiply(expr)
 	}
 
-	return expr
+	c := MathExpression{}
+	new := c.Sum(expr)
+	new = new.Multiply(a)
+
+	return new
 }
 
 // Divide return the sum of two math expression.
@@ -83,11 +97,6 @@ func (expr RealExpression) Inverse() (IMathExpression, error) {
 // TypeID is util to detect different types
 func (expr RealExpression) TypeID() TypeExpression {
 	return TypeExpressionReal
-}
-
-// Derivative of current expression.
-func (expr RealExpression) Derivative() (IMathExpression, error) {
-	return RealExpression{Value: big.NewFloat(0)}, nil
 }
 
 // N return the current numeric value.

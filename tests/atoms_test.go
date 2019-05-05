@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -136,4 +137,74 @@ func TestRealExpression(t *testing.T) {
 	if cmp != 0 {
 		t.Errorf("Expression should be 1.7, but %s", c)
 	}
+}
+
+func benchmarkIntegerExpression(a int64, b *testing.B) {
+	one := atoms.NewIntegerFromInteger(a)
+	expr := atoms.MathExpression{}
+
+	new := expr.Sum(atoms.NewIntegerFromInteger(0))
+	for n := 0; n < b.N; n++ {
+		new = new.Sum(one)
+	}
+
+	new.Simplify()
+}
+
+func BenchmarkIntegerExpression1(b *testing.B) {
+	benchmarkIntegerExpression(1, b)
+}
+
+func BenchmarkIntegerExpression10(b *testing.B) {
+	benchmarkIntegerExpression(10, b)
+}
+
+func BenchmarkIntegerExpression100000000(b *testing.B) {
+	benchmarkIntegerExpression(100000000, b)
+}
+
+func benchmarkFracExpression(a int64, c int64, b *testing.B) {
+	frac := atoms.NewFracFromIntegers(a, c)
+	expr := atoms.MathExpression{}
+
+	new := expr.Sum(atoms.NewIntegerFromInteger(0))
+	for n := 0; n < b.N; n++ {
+		new = new.Sum(frac)
+	}
+
+	new.Simplify()
+}
+
+func BenchmarkFracExpression1x2(b *testing.B) {
+	benchmarkFracExpression(1, 2, b)
+}
+
+func BenchmarkFracExpression2x3(b *testing.B) {
+	benchmarkFracExpression(2, 3, b)
+}
+
+func BenchmarkFracExpression13x23(b *testing.B) {
+	benchmarkFracExpression(13, 23, b)
+}
+
+func BenchmarkRealExpression(b *testing.B) {
+	real := atoms.NewRealFromFloat(0.0012)
+	expr := atoms.MathExpression{}
+
+	new := expr.Sum(atoms.NewIntegerFromInteger(0))
+	for n := 0; n < b.N; n++ {
+		new = new.Sum(real)
+	}
+
+	new.Simplify()
+}
+
+func TestSymbolsBasic(t *testing.T) {
+	a := atoms.NewIntegerFromInteger(3)
+	b := atoms.NewIntegerFromInteger(2)
+
+	sym1 := atoms.SymbolExpression{Symbol: "x", Exponent: b, Coefficient: a}
+	sym2 := atoms.SymbolExpression{Symbol: "y", Exponent: b, Coefficient: a}
+
+	fmt.Println(a.Multiply(sym1).Multiply(sym2))
 }

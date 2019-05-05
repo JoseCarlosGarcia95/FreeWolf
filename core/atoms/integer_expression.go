@@ -53,8 +53,11 @@ func (expr IntegerExpression) Sum(a IMathExpression) IMathExpression {
 	} else if a.TypeID() == TypeExpressionReal {
 		return a.Sum(expr)
 	}
+	c := MathExpression{}
+	new := c.Sum(expr)
+	new = new.Sum(a)
 
-	return expr
+	return new
 }
 
 // Substract return a simplified version of expression.
@@ -71,7 +74,11 @@ func (expr IntegerExpression) Substract(a IMathExpression) IMathExpression {
 		return a.Substract(expr).Multiply(NewIntegerFromInteger(-1))
 	}
 
-	return expr
+	c := MathExpression{}
+	new := c.Sum(expr)
+	new = new.Substract(a)
+
+	return new
 }
 
 // Multiply the product of two elements.
@@ -85,11 +92,15 @@ func (expr IntegerExpression) Multiply(a IMathExpression) IMathExpression {
 		return FracExpression{
 			Numerator:   expr,
 			Denominator: IntegerExpression{Value: big.NewInt(1)}}.Multiply(a)
-	} else if a.TypeID() == TypeExpressionReal {
+	} else if a.TypeID() == TypeExpressionReal || a.TypeID() == TypeExpressionSymbol {
 		return a.Multiply(expr)
 	}
 
-	return expr
+	c := MathExpression{}
+	new := c.Sum(expr)
+	new = new.Multiply(a)
+
+	return new
 }
 
 // Divide the product of two elements.
@@ -108,11 +119,6 @@ func (expr IntegerExpression) Inverse() (IMathExpression, error) {
 	return FracExpression{
 		Numerator:   IntegerExpression{Value: big.NewInt(1)},
 		Denominator: expr}.Simplify()
-}
-
-// Derivative of current expression.
-func (expr IntegerExpression) Derivative() (IMathExpression, error) {
-	return IntegerExpression{Value: big.NewInt(0)}, nil
 }
 
 // ToLaTeX return a representation in LaTeX

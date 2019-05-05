@@ -16,6 +16,8 @@ const (
 	TypeExpressionGroup TypeExpression = 2
 	// TypeExpressionReal represent a real number.
 	TypeExpressionReal TypeExpression = 3
+	// TypeExpressionSymbol represent a symbol.
+	TypeExpressionSymbol TypeExpression = 4
 )
 
 // OperatorsBetweenExpressions represent abstract type of operation.
@@ -43,7 +45,6 @@ type IMathExpression interface {
 	Multiply(IMathExpression) IMathExpression
 	Divide(IMathExpression) (IMathExpression, error)
 	Inverse() (IMathExpression, error)
-	Derivative() (IMathExpression, error)
 	Compare(IMathExpression) (int, error)
 	N() IMathExpression
 }
@@ -56,10 +57,8 @@ type MathExpression struct {
 
 // Sum a new expression to current expression
 func (expr MathExpression) Sum(a IMathExpression) IMathExpression {
-
 	expr.Operators = append(expr.Operators, OperatorSum)
 	expr.Parts = append(expr.Parts, a)
-
 	return expr
 }
 
@@ -70,16 +69,37 @@ func (expr MathExpression) Compare(a IMathExpression) (int, error) {
 
 // Substract a new expression to current expression
 func (expr MathExpression) Substract(a IMathExpression) IMathExpression {
-	expr.Parts = append(expr.Parts, a)
-	expr.Operators = append(expr.Operators, OperatorSubstract)
+	if a.TypeID() == TypeExpressionGroup {
+		b := a.(MathExpression)
+		c := NewIntegerFromInteger(-1)
+
+		for i := 0; i < len(b.Operators); i++ {
+			expr.Operators = append(expr.Operators, b.Operators[i])
+			expr.Parts = append(expr.Parts, b.Parts[i].Multiply(c))
+		}
+	} else {
+		expr.Operators = append(expr.Operators, OperatorSubstract)
+		expr.Parts = append(expr.Parts, a)
+	}
 
 	return expr
 }
 
 // Multiply expression by another expression.
 func (expr MathExpression) Multiply(a IMathExpression) IMathExpression {
-	expr.Parts = append(expr.Parts, a)
-	expr.Operators = append(expr.Operators, OperatorMult)
+
+	if a.TypeID() == TypeExpressionGroup {
+		b := a.(MathExpression)
+		c := expr.Parts[len(expr.Parts)-1]
+
+		for i := 0; i < len(b.Operators); i++ {
+			expr.Operators = append(expr.Operators, b.Operators[i])
+			expr.Parts = append(expr.Parts, b.Parts[i].Multiply(c))
+		}
+	} else {
+		expr.Operators = append(expr.Operators, OperatorMult)
+		expr.Parts = append(expr.Parts, a)
+	}
 
 	return expr
 }
@@ -92,13 +112,9 @@ func (expr MathExpression) Divide(a IMathExpression) (IMathExpression, error) {
 	return expr, nil
 }
 
-// Derivative of the current expression
-func (expr MathExpression) Derivative() (IMathExpression, error) {
-	return expr, nil
-}
-
 // Inverse expression by another expression.
 func (expr MathExpression) Inverse() (IMathExpression, error) {
+
 	return expr, nil
 }
 
@@ -164,4 +180,9 @@ func (expr MathExpression) N() IMathExpression {
 // TypeID return type of ID of current MathExpression
 func (expr MathExpression) TypeID() TypeExpression {
 	return TypeExpressionGroup
+}
+
+// IsNumber return true if IMathExpression is a pure number type.
+func IsNumber(a IMathExpression) bool {
+	return a.TypeID() == TypeExpressionReal || a.TypeID() == TypeFracExpression || a.TypeID() == TypeIntegerExpression
 }

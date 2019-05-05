@@ -4,13 +4,68 @@ import (
 	"errors"
 )
 
+// SumOperator on compute expression
+func SumOperator(a IMathExpression, b IMathExpression) IMathExpression {
+	if a.TypeID() == TypeExpressionGroup || b.TypeID() == TypeExpressionGroup {
+		var expr IMathExpression
+		var other IMathExpression
+
+		if a.TypeID() == TypeExpressionGroup {
+			expr = a.(MathExpression)
+			other = b
+		} else {
+			other = a
+			expr = b.(MathExpression)
+		}
+
+		if other.TypeID() == TypeExpressionSymbol {
+			searchExp := other.(SymbolExpression).Exponent
+			partsLen := len(expr.(MathExpression).Parts)
+
+			for i := 0; i < partsLen; i++ {
+
+				if expr.(MathExpression).Parts[i].TypeID() != TypeExpressionSymbol || expr.(MathExpression).Operators[i] != OperatorSum {
+					continue
+				}
+
+				part := expr.(MathExpression).Parts[i].(SymbolExpression)
+
+				if part.Symbol == other.(SymbolExpression).Symbol {
+					cmp, _ := part.Exponent.Compare(searchExp)
+
+					if cmp == 0 {
+						expr.(MathExpression).Parts[i] = expr.(MathExpression).Parts[i].Sum(other)
+
+						return expr
+					}
+				}
+			}
+		} else if IsNumber(other) {
+			partsLen := len(expr.(MathExpression).Parts)
+
+			for i := 0; i < partsLen; i++ {
+
+				if (expr.(MathExpression).Parts[i].TypeID() != TypeExpressionReal &&
+					expr.(MathExpression).Parts[i].TypeID() != TypeFracExpression &&
+					expr.(MathExpression).Parts[i].TypeID() != TypeIntegerExpression) || expr.(MathExpression).Operators[i] != OperatorSum {
+					continue
+				}
+
+				expr.(MathExpression).Parts[i] = expr.(MathExpression).Parts[i].Sum(other)
+				return expr
+			}
+		}
+	}
+	return a.Sum(b)
+}
+
 // ComputeOp calculate the given operation.
 func ComputeOp(op OperatorsBetweenExpressions, a IMathExpression, b IMathExpression) (IMathExpression, error) {
 	switch op {
 	case OperatorSum:
-		return a.Sum(b), nil
+		return SumOperator(a, b), nil
 	case OperatorSubstract:
-		return a.Substract(b), nil
+		return SumOperator(a, b.Multiply(NewIntegerFromInteger(-1))), nil
 	case OperatorMult:
 		return a.Multiply(b), nil
 	case OperatorDivide:
@@ -21,7 +76,8 @@ func ComputeOp(op OperatorsBetweenExpressions, a IMathExpression, b IMathExpress
 }
 
 // ComputeExpression calculate the current expression.
-// Source: https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing
+// Credits:
+// Based on: https://eli.thegreenplace.net/2012/08/02/parsing-expressions-by-precedence-climbing
 func (expr MathExpression) ComputeExpression(index *int, minPrecedence int) IMathExpression {
 	atomLHS := expr.Parts[*index]
 
