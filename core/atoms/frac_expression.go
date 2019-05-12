@@ -73,7 +73,7 @@ func (expr FracExpression) Sum(a IMathExpression) IMathExpression {
 // Substract return a sum.
 func (expr FracExpression) Substract(a IMathExpression) IMathExpression {
 	if a.TypeID() == TypeIntegerExpression {
-		return a.Substract(expr)
+		return a.Substract(expr).Multiply(NewIntegerFromInteger(-1))
 	}
 
 	if expr.TypeID() == a.TypeID() {

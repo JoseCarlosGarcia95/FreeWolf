@@ -127,7 +127,7 @@ func (expr MathExpression) Simplify() (IMathExpression, error) {
 	index := 0
 	newexpr := expr.ComputeExpression(&index, 1)
 
-	return newexpr, nil
+	return newexpr.Simplify()
 }
 
 // ToString convert current expression to string.

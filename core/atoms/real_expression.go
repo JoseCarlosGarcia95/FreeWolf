@@ -36,7 +36,7 @@ func (expr RealExpression) Sum(a IMathExpression) IMathExpression {
 	b := a.N()
 
 	if b.TypeID() == expr.TypeID() {
-		return RealExpression{Value: big.NewFloat(0).Add(expr.Value, &(*b.(RealExpression).Value))}
+		return RealExpression{Value: big.NewFloat(0).Add(expr.Value, b.(RealExpression).Value)}
 	}
 
 	c := MathExpression{}
@@ -51,7 +51,7 @@ func (expr RealExpression) Substract(a IMathExpression) IMathExpression {
 	b := a.N()
 
 	if b.TypeID() == expr.TypeID() {
-		return RealExpression{Value: big.NewFloat(0).Sub(expr.Value, &(*b.(RealExpression).Value))}
+		return RealExpression{Value: big.NewFloat(0).Sub(expr.Value, b.(RealExpression).Value)}
 	}
 
 	c := MathExpression{}
@@ -66,7 +66,7 @@ func (expr RealExpression) Multiply(a IMathExpression) IMathExpression {
 	b := a.N()
 
 	if b.TypeID() == expr.TypeID() {
-		return RealExpression{Value: big.NewFloat(0).Mul(expr.Value, &(*b.(RealExpression).Value))}
+		return RealExpression{Value: big.NewFloat(0).Mul(expr.Value, b.(RealExpression).Value)}
 	} else if a.TypeID() == TypeExpressionSymbol {
 		return a.Multiply(expr)
 	}
@@ -83,7 +83,7 @@ func (expr RealExpression) Divide(a IMathExpression) (IMathExpression, error) {
 	b := a.N()
 
 	if b.TypeID() == expr.TypeID() {
-		return RealExpression{Value: big.NewFloat(0).Quo(expr.Value, &(*b.(RealExpression).Value))}, nil
+		return RealExpression{Value: big.NewFloat(0).Quo(expr.Value, b.(RealExpression).Value)}, nil
 	}
 
 	return expr, nil

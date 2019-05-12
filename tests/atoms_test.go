@@ -87,6 +87,7 @@ func TestComplexMathExpression(t *testing.T) {
 	expr = expr.Multiply(c)
 
 	result, err := expr.Simplify()
+
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -188,15 +189,13 @@ func BenchmarkFracExpression13x23(b *testing.B) {
 }
 
 func BenchmarkRealExpression(b *testing.B) {
-	real := atoms.NewRealFromFloat(0.0012)
+	real := atoms.NewRealFromFloat(1)
 	expr := atoms.MathExpression{}
 
 	new := expr.Sum(atoms.NewIntegerFromInteger(0))
 	for n := 0; n < b.N; n++ {
 		new = new.Sum(real)
 	}
-
-	new.Simplify()
 }
 
 func TestSymbolsBasic(t *testing.T) {

@@ -44,12 +44,12 @@ func (expr IntegerExpression) Compare(a IMathExpression) (int, error) {
 func (expr IntegerExpression) Sum(a IMathExpression) IMathExpression {
 
 	if a.TypeID() == expr.TypeID() {
-		return IntegerExpression{Value: big.NewInt(0).Add(expr.Value, &(*a.(IntegerExpression).Value))}
+		return IntegerExpression{Value: big.NewInt(0).Add(expr.Value, a.(IntegerExpression).Value)}
 	}
 
 	if a.TypeID() == TypeFracExpression {
-		b := IntegerExpression{Value: big.NewInt(1)}
-		return FracExpression{Numerator: expr, Denominator: b}.Sum(a)
+		b := a.(FracExpression)
+		return FracExpression{Numerator: expr.Multiply(b.Numerator).Sum(b.Denominator), Denominator: b.Numerator}
 	} else if a.TypeID() == TypeExpressionReal {
 		return a.Sum(expr)
 	}
@@ -64,12 +64,12 @@ func (expr IntegerExpression) Sum(a IMathExpression) IMathExpression {
 func (expr IntegerExpression) Substract(a IMathExpression) IMathExpression {
 
 	if a.TypeID() == expr.TypeID() {
-		return IntegerExpression{Value: big.NewInt(0).Sub(expr.Value, &(*a.(IntegerExpression).Value))}
+		return IntegerExpression{Value: big.NewInt(0).Sub(expr.Value, a.(IntegerExpression).Value)}
 	}
 
 	if a.TypeID() == TypeFracExpression {
-		b := IntegerExpression{Value: big.NewInt(1)}
-		return FracExpression{Numerator: expr, Denominator: b}.Substract(a)
+		b := a.(FracExpression)
+		return FracExpression{Numerator: expr.Multiply(b.Numerator).Substract(b.Denominator), Denominator: b.Numerator}
 	} else if a.TypeID() == TypeExpressionReal {
 		return a.Substract(expr).Multiply(NewIntegerFromInteger(-1))
 	}
@@ -85,13 +85,14 @@ func (expr IntegerExpression) Substract(a IMathExpression) IMathExpression {
 func (expr IntegerExpression) Multiply(a IMathExpression) IMathExpression {
 
 	if a.TypeID() == expr.TypeID() {
-		return IntegerExpression{Value: big.NewInt(1).Mul(expr.Value, &(*a.(IntegerExpression).Value))}
+		return IntegerExpression{Value: big.NewInt(1).Mul(expr.Value, a.(IntegerExpression).Value)}
 	}
 
 	if a.TypeID() == TypeFracExpression {
+		b := a.(FracExpression)
 		return FracExpression{
-			Numerator:   expr,
-			Denominator: IntegerExpression{Value: big.NewInt(1)}}.Multiply(a)
+			Numerator:   expr.Multiply(b.Numerator),
+			Denominator: b.Denominator}
 	} else if a.TypeID() == TypeExpressionReal || a.TypeID() == TypeExpressionSymbol {
 		return a.Multiply(expr)
 	}
