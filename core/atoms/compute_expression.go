@@ -4,56 +4,90 @@ import (
 	"errors"
 )
 
+// SumExpressionGroupSymbol sum one expression group and symbol.
+func SumExpressionGroupSymbol(expr MathExpression, other IMathExpression) IMathExpression {
+	searchExp := other.(SymbolExpression).Exponent
+	partsLen := len(expr.Parts)
+
+	for i := 0; i < partsLen; i++ {
+
+		if expr.Parts[i].TypeID() != TypeExpressionSymbol || expr.Operators[i] != OperatorSum {
+			continue
+		}
+
+		part := expr.Parts[i].(SymbolExpression)
+
+		if part.Symbol == other.(SymbolExpression).Symbol {
+			cmp, _ := part.Exponent.Compare(searchExp)
+
+			if cmp == 0 {
+				expr.Parts[i] = expr.Parts[i].Sum(other)
+
+				return expr
+			}
+		}
+	}
+
+	return nil
+}
+
+// SumExpressionNumber sum one expression group and symbol.
+func SumExpressionNumber(expr MathExpression, other IMathExpression) IMathExpression {
+	partsLen := len(expr.Parts)
+
+	for i := 0; i < partsLen; i++ {
+
+		if (expr.Parts[i].TypeID() != TypeExpressionReal &&
+			expr.Parts[i].TypeID() != TypeFracExpression &&
+			expr.Parts[i].TypeID() != TypeIntegerExpression) || expr.Operators[i] != OperatorSum {
+			continue
+		}
+
+		expr.Parts[i] = expr.Parts[i].Sum(other)
+		return expr
+	}
+
+	return nil
+}
+
+// SumExpression represent a sum of expression group.
+func SumExpression(a IMathExpression, b IMathExpression) IMathExpression {
+	var expr IMathExpression
+	var other IMathExpression
+
+	if a.TypeID() == TypeExpressionGroup {
+		expr = a.(MathExpression)
+		other = b
+	} else {
+		other = a
+		expr = b.(MathExpression)
+	}
+
+	if other.TypeID() == TypeExpressionSymbol {
+		result := SumExpressionGroupSymbol(expr.(MathExpression), other)
+
+		if result != nil {
+			return result
+		}
+
+	} else if IsNumber(other) {
+		result := SumExpressionNumber(expr.(MathExpression), other)
+
+		if result != nil {
+			return result
+		}
+	}
+
+	return nil
+}
+
 // SumOperator on compute expression
 func SumOperator(a IMathExpression, b IMathExpression) IMathExpression {
 	if a.TypeID() == TypeExpressionGroup || b.TypeID() == TypeExpressionGroup {
-		var expr IMathExpression
-		var other IMathExpression
+		result := SumExpression(a, b)
 
-		if a.TypeID() == TypeExpressionGroup {
-			expr = a.(MathExpression)
-			other = b
-		} else {
-			other = a
-			expr = b.(MathExpression)
-		}
-
-		if other.TypeID() == TypeExpressionSymbol {
-			searchExp := other.(SymbolExpression).Exponent
-			partsLen := len(expr.(MathExpression).Parts)
-
-			for i := 0; i < partsLen; i++ {
-
-				if expr.(MathExpression).Parts[i].TypeID() != TypeExpressionSymbol || expr.(MathExpression).Operators[i] != OperatorSum {
-					continue
-				}
-
-				part := expr.(MathExpression).Parts[i].(SymbolExpression)
-
-				if part.Symbol == other.(SymbolExpression).Symbol {
-					cmp, _ := part.Exponent.Compare(searchExp)
-
-					if cmp == 0 {
-						expr.(MathExpression).Parts[i] = expr.(MathExpression).Parts[i].Sum(other)
-
-						return expr
-					}
-				}
-			}
-		} else if IsNumber(other) {
-			partsLen := len(expr.(MathExpression).Parts)
-
-			for i := 0; i < partsLen; i++ {
-
-				if (expr.(MathExpression).Parts[i].TypeID() != TypeExpressionReal &&
-					expr.(MathExpression).Parts[i].TypeID() != TypeFracExpression &&
-					expr.(MathExpression).Parts[i].TypeID() != TypeIntegerExpression) || expr.(MathExpression).Operators[i] != OperatorSum {
-					continue
-				}
-
-				expr.(MathExpression).Parts[i] = expr.(MathExpression).Parts[i].Sum(other)
-				return expr
-			}
+		if result != nil {
+			return result
 		}
 	}
 	return a.Sum(b)

@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -205,5 +204,8 @@ func TestSymbolsBasic(t *testing.T) {
 	sym1 := atoms.SymbolExpression{Symbol: "x", Exponent: b, Coefficient: a}
 	sym2 := atoms.SymbolExpression{Symbol: "y", Exponent: b, Coefficient: a}
 
-	fmt.Println(a.Multiply(sym1).Multiply(sym2))
+	result := a.Multiply(sym1).Multiply(sym2)
+	if result.String() != "+27 x ^ 2*y^2" {
+		t.Errorf("Expression should be +27 x ^ 2*y^2, but %s", result)
+	}
 }
