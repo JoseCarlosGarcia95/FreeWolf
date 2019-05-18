@@ -225,7 +225,7 @@ func TestSymbolSort(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	if result.String() != "+2 x ^ 10+3 x ^ 2+2 x ^ 3+5" {
-		t.Errorf("Expression should be +2 x ^ 10+3 x ^ 2+2 x ^ 3+5, bu6 %s", result)
+	if result.String() != "+2 x ^ 10+2 x ^ 3+3 x ^ 2+5" {
+		t.Errorf("Expression should be +2 x ^ 10+2 x ^ 3+3 x ^ 2+5, bu6 %s", result)
 	}
 }

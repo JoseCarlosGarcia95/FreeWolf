@@ -2,6 +2,7 @@ package atoms
 
 import (
 	"bytes"
+	"sort"
 )
 
 // TypeExpression represent expression type for easy identify expression types.
@@ -137,6 +138,38 @@ func (expr MathExpression) SortExpression() MathExpression {
 		tmp := expr.Parts[partsLen-1]
 		expr.Parts[partsLen-1] = expr.Parts[numIndex]
 		expr.Parts[numIndex] = tmp
+	}
+
+	symbols := make(map[int]int)
+	var exponents []int
+
+	for i := 0; i < partsLen; i++ {
+		if expr.Parts[i].TypeID() == TypeExpressionSymbol {
+			if expr.Parts[i].(SymbolExpression).Exponent.TypeID() == TypeIntegerExpression {
+				expInt := int(expr.Parts[i].(SymbolExpression).Exponent.(IntegerExpression).Value.Int64())
+				symbols[expInt] = i
+				exponents = append(exponents, expInt)
+			}
+		}
+	}
+
+	sort.Ints(exponents)
+
+	symbolIndex := 0
+
+	for i := range exponents {
+		exp := exponents[i]
+
+		tmp := expr.Parts[symbolIndex]
+		expr.Parts[symbolIndex] = expr.Parts[symbols[exp]]
+		expr.Parts[symbols[exp]] = tmp
+
+		for j := range exponents {
+			if symbols[exponents[j]] == symbolIndex {
+				symbols[exponents[j]] = symbols[exp]
+				break
+			}
+		}
 	}
 
 	return expr
