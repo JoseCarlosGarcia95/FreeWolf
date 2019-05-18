@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/JoseCarlosGarcia95/FreeWolf/core/atoms"
+	"github.com/JoseCarlosGarcia95/FreeWolf/core/math/symbolic/atoms"
 )
 
 func TestIntegersSum(t *testing.T) {
@@ -85,7 +85,7 @@ func TestComplexMathExpression(t *testing.T) {
 	expr = expr.Sum(a)
 	expr = expr.Multiply(c)
 
-	result, err := expr.Evaluate()
+	result, err := expr.Simplify()
 
 	if err != nil {
 		t.Errorf(err.Error())
@@ -207,5 +207,25 @@ func TestSymbolsBasic(t *testing.T) {
 	result := a.Multiply(sym1).Multiply(sym2)
 	if result.String() != "+27 x ^ 2*y^2" {
 		t.Errorf("Expression should be +27 x ^ 2*y^2, but %s", result)
+	}
+}
+
+func TestSymbolSort(t *testing.T) {
+	a := atoms.NewIntegerFromInteger(3)
+	b := atoms.NewIntegerFromInteger(2)
+	c := atoms.NewIntegerFromInteger(10)
+
+	sym1 := atoms.SymbolExpression{Symbol: "x", Exponent: b, Coefficient: a}
+	sym2 := atoms.SymbolExpression{Symbol: "x", Exponent: a, Coefficient: b}
+	sym3 := atoms.SymbolExpression{Symbol: "x", Exponent: c, Coefficient: b}
+
+	result, err := a.Sum(sym1).Sum(b).Sum(sym2).Sum(sym3).Evaluate()
+
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if result.String() != "+2 x ^ 10+3 x ^ 2+2 x ^ 3+5" {
+		t.Errorf("Expression should be +2 x ^ 10+3 x ^ 2+2 x ^ 3+5, bu6 %s", result)
 	}
 }

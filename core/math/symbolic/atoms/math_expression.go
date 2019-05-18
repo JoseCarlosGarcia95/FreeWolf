@@ -18,6 +18,8 @@ const (
 	TypeExpressionReal TypeExpression = 3
 	// TypeExpressionSymbol represent a symbol.
 	TypeExpressionSymbol TypeExpression = 4
+	// TypeExpressionExponent represent an exponent.
+	TypeExpressionExponent TypeExpression = 5
 )
 
 // OperatorsBetweenExpressions represent abstract type of operation.
@@ -119,6 +121,27 @@ func (expr MathExpression) Inverse() (IMathExpression, error) {
 	return expr, nil
 }
 
+// SortExpression push to the end number expressions
+func (expr MathExpression) SortExpression() MathExpression {
+	partsLen := len(expr.Parts)
+
+	if !IsNumber(expr.Parts[partsLen-1]) {
+		numIndex := -1
+
+		for i := 0; i < partsLen; i++ {
+			if IsNumber(expr.Parts[i]) {
+				numIndex = i
+			}
+		}
+
+		tmp := expr.Parts[partsLen-1]
+		expr.Parts[partsLen-1] = expr.Parts[numIndex]
+		expr.Parts[numIndex] = tmp
+	}
+
+	return expr
+}
+
 // Evaluate evaluate the current IMathExpression
 func (expr MathExpression) Evaluate() (IMathExpression, error) {
 	if len(expr.Parts) == 1 {
@@ -128,7 +151,11 @@ func (expr MathExpression) Evaluate() (IMathExpression, error) {
 	index := 0
 	newexpr := expr.ComputeExpression(&index, 1)
 
-	return newexpr.Evaluate()
+	if newexpr.TypeID() == TypeExpressionGroup {
+		return newexpr.(MathExpression).SortExpression(), nil
+	}
+
+	return newexpr, nil
 }
 
 // SimplifyParts simplify every part of the expression.

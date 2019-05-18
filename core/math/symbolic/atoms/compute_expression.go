@@ -22,7 +22,6 @@ func SumExpressionGroupSymbol(expr MathExpression, other IMathExpression) IMathE
 
 			if cmp == 0 {
 				expr.Parts[i] = expr.Parts[i].Sum(other)
-
 				return expr
 			}
 		}
