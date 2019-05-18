@@ -47,6 +47,7 @@ type IMathExpression interface {
 	Inverse() (IMathExpression, error)
 	Compare(IMathExpression) (int, error)
 	N() IMathExpression
+	Evaluate() (IMathExpression, error)
 }
 
 // MathExpression abstract the idea of MathExpression.
@@ -118,16 +119,54 @@ func (expr MathExpression) Inverse() (IMathExpression, error) {
 	return expr, nil
 }
 
-// Simplify try to Simplify the current expression.
-func (expr MathExpression) Simplify() (IMathExpression, error) {
+// Evaluate evaluate the current IMathExpression
+func (expr MathExpression) Evaluate() (IMathExpression, error) {
 	if len(expr.Parts) == 1 {
-		return expr.Parts[0].Simplify()
+		return expr.Parts[0].Evaluate()
 	}
 
 	index := 0
 	newexpr := expr.ComputeExpression(&index, 1)
 
-	return newexpr.Simplify()
+	return newexpr.Evaluate()
+}
+
+// SimplifyParts simplify every part of the expression.
+func (expr MathExpression) SimplifyParts() (MathExpression, error) {
+	var err error
+	partsLen := len(expr.Parts)
+
+	for i := 0; i < partsLen; i++ {
+		expr.Parts[i], err = expr.Parts[i].Simplify()
+
+		if err != nil {
+			return expr, err
+		}
+	}
+
+	return expr, nil
+}
+
+// Simplify try to Simplify the current expression.
+func (expr MathExpression) Simplify() (IMathExpression, error) {
+	evaluate, err := expr.Evaluate()
+
+	if err != nil {
+		return nil, err
+	}
+
+	if evaluate.TypeID() != expr.TypeID() {
+		return evaluate.Simplify()
+	}
+
+	exprEval := evaluate.(MathExpression)
+	exprEval, err = exprEval.SimplifyParts()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return exprEval, err
 }
 
 // ToString convert current expression to string.

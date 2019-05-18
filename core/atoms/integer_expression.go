@@ -40,6 +40,11 @@ func (expr IntegerExpression) Compare(a IMathExpression) (int, error) {
 	return result, err
 }
 
+// Evaluate evaluate the current IMathExpression
+func (expr IntegerExpression) Evaluate() (IMathExpression, error) {
+	return expr, nil
+}
+
 // Sum return a simplified version of expression.
 func (expr IntegerExpression) Sum(a IMathExpression) IMathExpression {
 

@@ -46,6 +46,11 @@ func (expr RealExpression) Sum(a IMathExpression) IMathExpression {
 	return new
 }
 
+// Evaluate evaluate the current IMathExpression
+func (expr RealExpression) Evaluate() (IMathExpression, error) {
+	return expr, nil
+}
+
 // Substract return the substract of two math expression.
 func (expr RealExpression) Substract(a IMathExpression) IMathExpression {
 	b := a.N()

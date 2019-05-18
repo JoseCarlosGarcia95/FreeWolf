@@ -12,6 +12,11 @@ type SymbolExpression struct {
 	Symbol      string
 }
 
+// Evaluate evaluate the current IMathExpression
+func (expr SymbolExpression) Evaluate() (IMathExpression, error) {
+	return expr, nil
+}
+
 // Simplify the current expression
 func (expr SymbolExpression) Simplify() (IMathExpression, error) {
 	return expr, nil

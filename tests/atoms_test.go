@@ -85,7 +85,7 @@ func TestComplexMathExpression(t *testing.T) {
 	expr = expr.Sum(a)
 	expr = expr.Multiply(c)
 
-	result, err := expr.Simplify()
+	result, err := expr.Evaluate()
 
 	if err != nil {
 		t.Errorf(err.Error())
@@ -126,7 +126,7 @@ func TestRealExpression(t *testing.T) {
 	expr := m.Sum(a)
 	expr = expr.Sum(b)
 
-	c, _ := expr.Simplify()
+	c, _ := expr.Evaluate()
 	expected := atoms.NewRealFromFloat(1.7)
 
 	cmp, err := expected.Compare(c)
@@ -148,7 +148,7 @@ func benchmarkIntegerExpression(a int64, b *testing.B) {
 		new = new.Sum(one)
 	}
 
-	new.Simplify()
+	new.Evaluate()
 }
 
 func BenchmarkIntegerExpression1(b *testing.B) {
@@ -172,7 +172,7 @@ func benchmarkFracExpression(a int64, c int64, b *testing.B) {
 		new = new.Sum(frac)
 	}
 
-	new.Simplify()
+	new.Evaluate()
 }
 
 func BenchmarkFracExpression1x2(b *testing.B) {

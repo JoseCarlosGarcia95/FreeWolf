@@ -93,6 +93,11 @@ func (expr FracExpression) Substract(a IMathExpression) IMathExpression {
 	return new
 }
 
+// Evaluate evaluate the current IMathExpression
+func (expr FracExpression) Evaluate() (IMathExpression, error) {
+	return expr.Simplify()
+}
+
 // Multiply return a simplified version of expression.
 func (expr FracExpression) Multiply(a IMathExpression) IMathExpression {
 	if a.TypeID() == TypeIntegerExpression {
