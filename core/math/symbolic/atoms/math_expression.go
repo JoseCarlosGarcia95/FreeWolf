@@ -122,8 +122,8 @@ func (expr MathExpression) Inverse() (IMathExpression, error) {
 	return expr, nil
 }
 
-// SortExpression push to the end number expressions
-func (expr MathExpression) SortExpression() MathExpression {
+// SortNumbersInExpression put numbers at the end of expression
+func (expr MathExpression) SortNumbersInExpression() MathExpression {
 	partsLen := len(expr.Parts)
 
 	if !IsNumber(expr.Parts[partsLen-1]) {
@@ -140,22 +140,27 @@ func (expr MathExpression) SortExpression() MathExpression {
 		expr.Parts[numIndex] = tmp
 	}
 
+	return expr
+}
+
+// SortSymbolsInExpression work for sorting symbols on math expression
+func (expr MathExpression) SortSymbolsInExpression() MathExpression {
+	partsLen := len(expr.Parts)
+	symbolIndex := 0
+
 	symbols := make(map[int]int)
 	var exponents []int
 
 	for i := 0; i < partsLen; i++ {
-		if expr.Parts[i].TypeID() == TypeExpressionSymbol {
-			if expr.Parts[i].(SymbolExpression).Exponent.TypeID() == TypeIntegerExpression {
-				expInt := int(expr.Parts[i].(SymbolExpression).Exponent.(IntegerExpression).Value.Int64())
-				symbols[expInt] = i
-				exponents = append(exponents, expInt)
-			}
+		if expr.Parts[i].TypeID() == TypeExpressionSymbol &&
+			expr.Parts[i].(SymbolExpression).Exponent.TypeID() == TypeIntegerExpression {
+			expInt := int(expr.Parts[i].(SymbolExpression).Exponent.(IntegerExpression).Value.Int64())
+			symbols[expInt] = i
+			exponents = append(exponents, expInt)
 		}
 	}
 
 	sort.Ints(exponents)
-
-	symbolIndex := 0
 
 	for i := range exponents {
 		exp := exponents[i]
@@ -164,6 +169,8 @@ func (expr MathExpression) SortExpression() MathExpression {
 		expr.Parts[symbolIndex] = expr.Parts[symbols[exp]]
 		expr.Parts[symbols[exp]] = tmp
 
+		symbolIndex++
+
 		for j := range exponents {
 			if symbols[exponents[j]] == symbolIndex {
 				symbols[exponents[j]] = symbols[exp]
@@ -171,6 +178,14 @@ func (expr MathExpression) SortExpression() MathExpression {
 			}
 		}
 	}
+
+	return expr
+}
+
+// SortExpression push to the end number expressions
+func (expr MathExpression) SortExpression() MathExpression {
+	expr = expr.SortNumbersInExpression()
+	expr = expr.SortSymbolsInExpression()
 
 	return expr
 }
@@ -283,5 +298,7 @@ func (expr MathExpression) TypeID() TypeExpression {
 
 // IsNumber return true if IMathExpression is a pure number type.
 func IsNumber(a IMathExpression) bool {
-	return a.TypeID() == TypeExpressionReal || a.TypeID() == TypeFracExpression || a.TypeID() == TypeIntegerExpression
+	return a.TypeID() == TypeExpressionReal ||
+		a.TypeID() == TypeFracExpression ||
+		a.TypeID() == TypeIntegerExpression
 }

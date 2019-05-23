@@ -53,10 +53,11 @@ func (expr FracExpression) Sum(a IMathExpression) IMathExpression {
 	}
 
 	if expr.TypeID() == a.TypeID() {
-		// TODO: Simplify should be executed only when ComputeExpression ran
-		simplified, _ := FracExpression{
-			Numerator:   expr.Numerator.Multiply(a.(FracExpression).Denominator).Sum(a.(FracExpression).Numerator.Multiply(expr.Denominator)),
-			Denominator: expr.Denominator.Multiply(a.(FracExpression).Denominator)}.Simplify()
+		numerator := expr.Numerator.Multiply(a.(FracExpression).Denominator)
+		numerator = numerator.Sum(a.(FracExpression).Numerator.Multiply(expr.Denominator))
+
+		denominator := expr.Denominator.Multiply(a.(FracExpression).Denominator)
+		simplified, _ := FracExpression{Numerator: numerator, Denominator: denominator}.Simplify()
 
 		return simplified
 	} else if a.TypeID() == TypeExpressionReal {
