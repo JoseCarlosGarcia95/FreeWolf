@@ -11,7 +11,9 @@ func SumExpressionGroupSymbol(expr MathExpression, other IMathExpression) IMathE
 
 	for i := 0; i < partsLen; i++ {
 
-		if expr.Parts[i].TypeID() != TypeExpressionSymbol || expr.Operators[i] != OperatorSum {
+		if expr.Parts[i].TypeID() != TypeExpressionSymbol ||
+			expr.Operators[i] != OperatorSum ||
+			(i+1 < partsLen && expr.Operators[i+1] != OperatorSum) {
 			continue
 		}
 
@@ -36,9 +38,9 @@ func SumExpressionNumber(expr MathExpression, other IMathExpression) IMathExpres
 
 	for i := 0; i < partsLen; i++ {
 
-		if (expr.Parts[i].TypeID() != TypeExpressionReal &&
-			expr.Parts[i].TypeID() != TypeFracExpression &&
-			expr.Parts[i].TypeID() != TypeIntegerExpression) || expr.Operators[i] != OperatorSum {
+		if !IsNumber(expr.Parts[i]) ||
+			expr.Operators[i] != OperatorSum ||
+			(i+1 < partsLen && expr.Operators[i+1] != OperatorSum) {
 			continue
 		}
 
