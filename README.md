@@ -1,6 +1,6 @@
 # FreeWolf
 
-![Logo](https://raw.githubusercontent.com/JoseCarlosGarcia95/FreeWolf/master/resources/images/logo_small.png)
+![Logo](resources/images/logo_small.png)
 
 
 FreeWolf is under development.
