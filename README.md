@@ -1,7 +1,8 @@
 # FreeWolf
 
+<p align="center">
 ![Logo](resources/images/logo_small.png)
-
+</p>
 
 FreeWolf is under development.
 
