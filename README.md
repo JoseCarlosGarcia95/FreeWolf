@@ -1,11 +1,8 @@
+# FreeWolf
+
 <p align="center">
   <img width="200" height="200" src="resources/images/logo_small.png">
 </p>
-
-# FreeWolf
-
-FreeWolf is under development.
-
 
 ## Table of contents
 - [FreeWolf](#freewolf)
