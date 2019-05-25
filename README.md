@@ -1,8 +1,8 @@
-# FreeWolf
-
 <p align="center">
-![Logo](resources/images/logo_small.png)
+  <img width="460" height="300" src="resources/images/logo_small.png">
 </p>
+
+# FreeWolf
 
 FreeWolf is under development.
 
