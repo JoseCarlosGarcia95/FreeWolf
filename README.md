@@ -35,6 +35,9 @@
 	- Integrals. :heavy_exclamation_mark: :information_source:
 	- Stats :heavy_exclamation_mark: :information_source:
 	- ODE & PDE solve. :heavy_exclamation_mark: :information_source:
+- **Programming language** :heavy_exclamation_mark: :information_source:
+    - Defining language features and syntax.
+- **More features** :information_source:
 
 ### _Legends_
 - :white_check_mark: Not done yet but started. _(Included in next release)_
