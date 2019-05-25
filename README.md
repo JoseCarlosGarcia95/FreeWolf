@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="460" height="300" src="resources/images/logo_small.png">
+  <img width="200" height="200" src="resources/images/logo_small.png">
 </p>
 
 # FreeWolf
