@@ -2,6 +2,7 @@ package atoms
 
 import (
 	"bytes"
+	"fmt"
 	"sort"
 )
 
@@ -233,28 +234,42 @@ func (expr MathExpression) Simplify() (IMathExpression, error) {
 	return exprEval, err
 }
 
+// ParenthesisNeeded return true if we need a parenthesis for this expression on printing.
+func ParenthesisNeeded(expr IMathExpression) bool {
+	if expr.TypeID() != TypeExpressionGroup {
+		return false
+	}
+
+	operatorLen := len(expr.(MathExpression).Operators)
+
+	for i := 1; i < operatorLen; i++ {
+		if expr.(MathExpression).Operators[i] == OperatorSum ||
+			expr.(MathExpression).Operators[i] == OperatorSubstract {
+			fmt.Println(expr)
+			return true
+		}
+	}
+	return false
+}
+
 // ToString convert current expression to string.
 func (expr MathExpression) String() string {
 	var buffer bytes.Buffer
 	operatorLen := len(expr.Operators)
 
 	for i := 0; i < operatorLen; i++ {
-		isExpression := false
-
-		if expr.Parts[i].TypeID() == TypeExpressionGroup {
-			isExpression = true
-		}
+		parenthesisNeeded := ParenthesisNeeded(expr.Parts[i])
 
 		if i != 0 {
 			buffer.WriteString(expr.Operators[i].String())
 		}
 
-		if isExpression {
+		if parenthesisNeeded {
 			buffer.WriteString("(")
 		}
 		buffer.WriteString(expr.Parts[i].String())
 
-		if isExpression {
+		if parenthesisNeeded {
 			buffer.WriteString(")")
 		}
 	}
@@ -284,22 +299,19 @@ func (expr MathExpression) ToLaTeX() string {
 	operatorLen := len(expr.Operators)
 
 	for i := 0; i < operatorLen; i++ {
-		isExpression := false
-		if expr.Parts[i].TypeID() == TypeExpressionGroup {
-			isExpression = true
-		}
-
-		if isExpression {
-			buffer.WriteString("\\left(")
-		}
+		parenthesisNeeded := ParenthesisNeeded(expr.Parts[i])
 
 		if i != 0 {
 			buffer.WriteString(expr.Operators[i].String())
 		}
 
+		if parenthesisNeeded {
+			buffer.WriteString("\\left(")
+		}
+
 		buffer.WriteString(expr.Parts[i].ToLaTeX())
 
-		if isExpression {
+		if parenthesisNeeded {
 			buffer.WriteString("\\right)")
 		}
 	}

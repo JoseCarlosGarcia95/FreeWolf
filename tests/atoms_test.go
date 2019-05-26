@@ -288,7 +288,7 @@ func TestExpressionMultiplicationWithSymbols(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	if expr2.String() != "(2 x ^ 3*(2 x ^ 3+11/2))+11/2" {
+	if expr2.String() != "2 x ^ 3*(2 x ^ 3+11/2)+11/2" {
 		t.Errorf("Expression should be (2 x ^ 3*(2 x ^ 3+11/2))+11/2 but %s", expr2)
 	}
 }
