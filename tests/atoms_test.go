@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -220,7 +219,6 @@ func TestSymbolSort(t *testing.T) {
 	sym2 := atoms.SymbolExpression{Symbol: "x", Exponent: a, Coefficient: b}
 	sym3 := atoms.SymbolExpression{Symbol: "x", Exponent: c, Coefficient: b}
 
-	fmt.Println(a.Sum(sym1).Sum(b).Sum(sym2).Sum(sym3).Sum(sym1).Sum(sym3).Sum(sym2))
 	result, err := a.Sum(sym1).Sum(b).Sum(sym2).Sum(sym3).Evaluate()
 
 	if err != nil {
