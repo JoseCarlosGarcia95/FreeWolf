@@ -54,7 +54,8 @@ func (expr IntegerExpression) Sum(a IMathExpression) IMathExpression {
 
 	if a.TypeID() == TypeFracExpression {
 		b := a.(FracExpression)
-		return FracExpression{Numerator: expr.Multiply(b.Numerator).Sum(b.Denominator), Denominator: b.Numerator}
+		frac, _ := FracExpression{Numerator: expr.Multiply(b.Denominator).Sum(b.Numerator), Denominator: b.Denominator}.Simplify()
+		return frac
 	} else if a.TypeID() == TypeExpressionReal {
 		return a.Sum(expr)
 	}
@@ -74,7 +75,8 @@ func (expr IntegerExpression) Substract(a IMathExpression) IMathExpression {
 
 	if a.TypeID() == TypeFracExpression {
 		b := a.(FracExpression)
-		return FracExpression{Numerator: expr.Multiply(b.Numerator).Substract(b.Denominator), Denominator: b.Numerator}
+		frac, _ := FracExpression{Numerator: expr.Multiply(b.Denominator).Substract(b.Numerator), Denominator: b.Denominator}.Simplify()
+		return frac
 	} else if a.TypeID() == TypeExpressionReal {
 		return a.Substract(expr).Multiply(NewIntegerFromInteger(-1))
 	}
