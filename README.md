@@ -1,15 +1,15 @@
-# FreeWolf
+# FreeWolf [![Build Status](https://travis-ci.org/JoseCarlosGarcia95/FreeWolf.svg?branch=master)](https://travis-ci.org/JoseCarlosGarcia95/FreeWolf)
 
 <p align="center">
   <img width="200" height="200" src="resources/images/logo_small.png">
 </p>
 
 ## Table of contents
-- [FreeWolf](#freewolf)
-  - [Table of contents](#table-of-contents)
-  - [Features](#features)
-    - [_Legends_](#legends)
-  - [License](#license)
+- [FreeWolf ![Build Status](https://travis-ci.org/JoseCarlosGarcia95/FreeWolf)](#freewolf-build-statushttpstravis-ciorgjosecarlosgarcia95freewolf)
+	- [Table of contents](#table-of-contents)
+	- [Features](#features)
+		- [_Legends_](#legends)
+	- [License](#license)
 
 ## Features
 
