@@ -1,5 +1,9 @@
 language: go
 
+os:
+  - linux
+  - osx
+  - windows
+  
 script:
   - go test -v -race tests/*
-  

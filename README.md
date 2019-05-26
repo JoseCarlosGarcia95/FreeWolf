@@ -7,10 +7,13 @@
 ## Table of contents
 - [FreeWolf](#freewolf)
 	- [Table of contents](#table-of-contents)
+	- [Status](#status)
 	- [Features](#features)
 		- [_Legends_](#legends)
-	- [Status](#status)
 	- [License](#license)
+
+## Status
+ [![Build Status](https://travis-ci.org/JoseCarlosGarcia95/FreeWolf.svg?branch=master)](https://travis-ci.org/JoseCarlosGarcia95/FreeWolf)
 
 ## Features
 
@@ -46,10 +49,6 @@
 - :soon: Support will arrive early. _(Included in next release)_
 - :heavy_check_mark: Done. _(Included in current release)_
 - :information_source: Feature under development yet.
-
-
-## Status
- [![Build Status](https://travis-ci.org/JoseCarlosGarcia95/FreeWolf.svg?branch=master)](https://travis-ci.org/JoseCarlosGarcia95/FreeWolf)
 
 ## License
     This program is free software: you can redistribute it and/or modify
