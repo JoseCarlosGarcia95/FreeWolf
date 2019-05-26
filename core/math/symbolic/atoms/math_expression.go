@@ -2,7 +2,6 @@ package atoms
 
 import (
 	"bytes"
-	"fmt"
 	"sort"
 )
 
@@ -245,7 +244,6 @@ func ParenthesisNeeded(expr IMathExpression) bool {
 	for i := 1; i < operatorLen; i++ {
 		if expr.(MathExpression).Operators[i] == OperatorSum ||
 			expr.(MathExpression).Operators[i] == OperatorSubstract {
-			fmt.Println(expr)
 			return true
 		}
 	}
