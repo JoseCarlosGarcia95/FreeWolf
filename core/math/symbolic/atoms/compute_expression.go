@@ -116,6 +116,10 @@ func ComputeOp(op OperatorsBetweenExpressions, a IMathExpression, b IMathExpress
 func (expr MathExpression) ComputeExpression(index *int, minPrecedence int) IMathExpression {
 	atomLHS := expr.Parts[*index]
 
+	if atomLHS.TypeID() == TypeExpressionGroup {
+		atomLHS, _ = atomLHS.(MathExpression).Evaluate()
+	}
+
 	for {
 		if *index >= len(expr.Operators)-1 {
 			break

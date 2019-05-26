@@ -74,6 +74,45 @@ func TestIntegersDivison(t *testing.T) {
 	}
 }
 
+func TestSumIntegerFrac(t *testing.T) {
+	a := atoms.NewIntegerFromInteger(2)
+	b := atoms.NewFracFromIntegers(1, 2)
+	c := atoms.NewFracFromIntegers(5, 2)
+	d := a.Sum(b)
+	cmp, err := d.Compare(c)
+
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if cmp != 0 {
+		t.Errorf("Division should be 5/2, but %s", d)
+	}
+}
+
+func TestExpressionMultiplication(t *testing.T) {
+	a := atoms.NewIntegerFromInteger(2)
+	b := atoms.NewIntegerFromInteger(3)
+	c := atoms.NewFracFromIntegers(1, 2)
+
+	m := atoms.MathExpression{}
+	expr1 := m.Sum(a)
+	expr1 = expr1.Sum(b)
+	expr1 = expr1.Sum(c)
+
+	expr2, _ := expr1.Multiply(expr1).Evaluate()
+
+	cmp, err := expr2.Compare(atoms.NewFracFromIntegers(31, 4))
+
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if cmp != 0 {
+		t.Errorf("Expression should be 31/4, but %s", expr2)
+	}
+
+}
+
 func TestComplexMathExpression(t *testing.T) {
 	a := atoms.NewIntegerFromInteger(2)
 	b := atoms.NewIntegerFromInteger(3)
@@ -205,8 +244,8 @@ func TestSymbolsBasic(t *testing.T) {
 	sym2 := atoms.SymbolExpression{Symbol: "y", Exponent: b, Coefficient: a}
 
 	result := a.Multiply(sym1).Multiply(sym2)
-	if result.String() != "+27 x ^ 2*y^2" {
-		t.Errorf("Expression should be +27 x ^ 2*y^2, but %s", result)
+	if result.String() != "27 x ^ 2*y^2" {
+		t.Errorf("Expression should be 27 x ^ 2*y^2, but %s", result)
 	}
 }
 
@@ -225,7 +264,31 @@ func TestSymbolSort(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	if result.String() != "+2 x ^ 10+2 x ^ 3+3 x ^ 2+5" {
-		t.Errorf("Expression should be +2 x ^ 10+2 x ^ 3+3 x ^ 2+5, but %s", result)
+	if result.String() != "2 x ^ 10+2 x ^ 3+3 x ^ 2+5" {
+		t.Errorf("Expression should be 2 x ^ 10+2 x ^ 3+3 x ^ 2+5, but %s", result)
+	}
+}
+
+func TestExpressionMultiplicationWithSymbols(t *testing.T) {
+	a := atoms.NewIntegerFromInteger(2)
+	b := atoms.NewIntegerFromInteger(3)
+	c := atoms.NewFracFromIntegers(1, 2)
+
+	sym1 := atoms.SymbolExpression{Symbol: "x", Exponent: b, Coefficient: a}
+
+	m := atoms.MathExpression{}
+	expr1 := m.Sum(a)
+	expr1 = expr1.Sum(b)
+	expr1 = expr1.Sum(c)
+	expr1 = expr1.Sum(sym1)
+
+	expr2, err := expr1.Multiply(expr1).Evaluate()
+
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	if expr2.String() != "(2 x ^ 3*(2 x ^ 3+11/2))+11/2" {
+		t.Errorf("Expression should be (2 x ^ 3*(2 x ^ 3+11/2))+11/2 but %s", expr2)
 	}
 }

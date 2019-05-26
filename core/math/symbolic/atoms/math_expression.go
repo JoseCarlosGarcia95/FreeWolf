@@ -91,19 +91,8 @@ func (expr MathExpression) Substract(a IMathExpression) IMathExpression {
 
 // Multiply expression by another expression.
 func (expr MathExpression) Multiply(a IMathExpression) IMathExpression {
-
-	if a.TypeID() == TypeExpressionGroup {
-		b := a.(MathExpression)
-		c := expr.Parts[len(expr.Parts)-1]
-
-		for i := 0; i < len(b.Operators); i++ {
-			expr.Operators = append(expr.Operators, b.Operators[i])
-			expr.Parts = append(expr.Parts, b.Parts[i].Multiply(c))
-		}
-	} else {
-		expr.Operators = append(expr.Operators, OperatorMult)
-		expr.Parts = append(expr.Parts, a)
-	}
+	expr.Parts = append(expr.Parts, a)
+	expr.Operators = append(expr.Operators, OperatorMult)
 
 	return expr
 }
@@ -250,8 +239,24 @@ func (expr MathExpression) String() string {
 	operatorLen := len(expr.Operators)
 
 	for i := 0; i < operatorLen; i++ {
-		buffer.WriteString(expr.Operators[i].String())
+		isExpression := false
+
+		if expr.Parts[i].TypeID() == TypeExpressionGroup {
+			isExpression = true
+		}
+
+		if i != 0 {
+			buffer.WriteString(expr.Operators[i].String())
+		}
+
+		if isExpression {
+			buffer.WriteString("(")
+		}
 		buffer.WriteString(expr.Parts[i].String())
+
+		if isExpression {
+			buffer.WriteString(")")
+		}
 	}
 
 	return buffer.String()
@@ -279,8 +284,24 @@ func (expr MathExpression) ToLaTeX() string {
 	operatorLen := len(expr.Operators)
 
 	for i := 0; i < operatorLen; i++ {
-		buffer.WriteString(expr.Operators[i].String())
+		isExpression := false
+		if expr.Parts[i].TypeID() == TypeExpressionGroup {
+			isExpression = true
+		}
+
+		if isExpression {
+			buffer.WriteString("\\left(")
+		}
+
+		if i != 0 {
+			buffer.WriteString(expr.Operators[i].String())
+		}
+
 		buffer.WriteString(expr.Parts[i].ToLaTeX())
+
+		if isExpression {
+			buffer.WriteString("\\right)")
+		}
 	}
 
 	return buffer.String()
