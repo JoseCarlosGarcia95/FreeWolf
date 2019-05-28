@@ -6,4 +6,4 @@ os:
   - windows
   
 script:
-  - go test -v -race tests/*
+  - go test -v -race ./tests/...
