@@ -7,9 +7,8 @@ import (
 
 // ExponentExpression represent an algebraic symbol
 type ExponentExpression struct {
-	Exponent    IMathExpression
-	Coefficient IMathExpression
-	Base        IMathExpression
+	Exponent IMathExpression
+	Base     IMathExpression
 }
 
 // Evaluate evaluate the current IMathExpression
@@ -24,23 +23,7 @@ func (expr ExponentExpression) Simplify() (IMathExpression, error) {
 
 // String return a string from given symbol
 func (expr ExponentExpression) String() string {
-	cmp, _ := NewIntegerFromInteger(1).Compare(expr.Exponent)
-
-	if cmp == 0 {
-
-		cmp2, _ := NewIntegerFromInteger(1).Compare(expr.Coefficient)
-
-		if cmp2 == 0 {
-			return fmt.Sprintf("%s", expr.Base)
-		}
-		return fmt.Sprintf("%s %s", expr.Coefficient, expr.Base)
-	}
-	cmp2, _ := NewIntegerFromInteger(1).Compare(expr.Coefficient)
-
-	if cmp2 == 0 {
-		return fmt.Sprintf("%s^%s", expr.Base, expr.Exponent)
-	}
-	return fmt.Sprintf("%s %s ^ %s", expr.Coefficient, expr.Base, expr.Exponent)
+	return fmt.Sprintf("%s ^ %s", expr.Base, expr.Exponent)
 }
 
 // ToLaTeX return a LaTeX version of symbol
@@ -56,11 +39,9 @@ func (expr ExponentExpression) Sum(a IMathExpression) IMathExpression {
 		cmp, err := b.Exponent.Compare(expr.Exponent)
 
 		if err == nil && cmp == 0 && b.Base == expr.Base {
-			new := ExponentExpression{
-				Exponent:    expr.Exponent,
-				Coefficient: expr.Coefficient.Sum(b.Coefficient),
-				Base:        expr.Base}
-			return new
+			return CoefficientExpression{
+				Base:        expr,
+				Coefficient: NewIntegerFromInteger(2)}
 		}
 
 		if cmp > 0 && err == nil {
@@ -87,11 +68,7 @@ func (expr ExponentExpression) Substract(a IMathExpression) IMathExpression {
 		cmp, err := b.Exponent.Compare(expr.Exponent)
 
 		if err == nil && cmp == 0 && b.Base == expr.Base {
-			new := ExponentExpression{
-				Exponent:    expr.Exponent,
-				Coefficient: expr.Coefficient.Substract(b.Coefficient),
-				Base:        expr.Base}
-			return new
+			return NewIntegerFromInteger(0)
 		}
 	}
 
@@ -109,30 +86,28 @@ func (expr ExponentExpression) Multiply(a IMathExpression) IMathExpression {
 
 		if b.Base == expr.Base {
 			new := ExponentExpression{
-				Exponent:    expr.Exponent.Sum(b.Exponent),
-				Coefficient: expr.Coefficient.Multiply(b.Coefficient),
-				Base:        expr.Base}
+				Exponent: expr.Exponent.Sum(b.Exponent),
+				Base:     expr.Base}
 
 			return new
 		}
 
 		new1 := ExponentExpression{
-			Exponent:    expr.Exponent,
-			Coefficient: expr.Coefficient.Multiply(b.Coefficient),
-			Base:        expr.Base}
+			Exponent: expr.Exponent,
+			Base:     expr.Base}
 
 		new2 := ExponentExpression{
-			Exponent:    b.Exponent,
-			Coefficient: NewIntegerFromInteger(1),
-			Base:        b.Base}
+			Exponent: b.Exponent,
+			Base:     b.Base}
 
 		c := MathExpression{}
 
 		return c.Sum(new1).Multiply(new2)
 
 	} else if IsNumber(a) {
-		expr.Coefficient = expr.Coefficient.Multiply(a)
-		return expr
+		return CoefficientExpression{
+			Base:        expr,
+			Coefficient: a}
 	}
 
 	c := MathExpression{}
@@ -145,14 +120,11 @@ func (expr ExponentExpression) Divide(a IMathExpression) (IMathExpression, error
 		b := a.(ExponentExpression)
 
 		if b.Base == expr.Base {
-			c, err := expr.Exponent.Divide(b.Exponent)
-
 			new := ExponentExpression{
-				Exponent:    c,
-				Coefficient: expr.Coefficient.Substract(b.Coefficient),
-				Base:        expr.Base}
+				Exponent: expr.Exponent.Substract(b.Exponent),
+				Base:     expr.Base}
 
-			return new, err
+			return new, nil
 		}
 	}
 
@@ -176,9 +148,8 @@ func (expr ExponentExpression) Inverse() (IMathExpression, error) {
 // N return the current numeric value.
 func (expr ExponentExpression) N() IMathExpression {
 	return ExponentExpression{
-		Exponent:    expr.Exponent.N(),
-		Coefficient: expr.Coefficient.N(),
-		Base:        expr.Base}
+		Exponent: expr.Exponent.N(),
+		Base:     expr.Base}
 
 }
 

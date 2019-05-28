@@ -21,6 +21,8 @@ const (
 	TypeExpressionSymbol TypeExpression = 4
 	// TypeExpressionExponent represent an exponent.
 	TypeExpressionExponent TypeExpression = 5
+	// TypeExpressionCoefficient represent an exponent.
+	TypeExpressionCoefficient TypeExpression = 6
 )
 
 // OperatorsBetweenExpressions represent abstract type of operation.

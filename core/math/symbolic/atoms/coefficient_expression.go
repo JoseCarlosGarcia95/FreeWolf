@@ -37,11 +37,14 @@ func (expr CoefficientExpression) Sum(a IMathExpression) IMathExpression {
 		b := a.(CoefficientExpression)
 
 		if b.Base == expr.Base {
-			new := CoefficientExpression{
+			return CoefficientExpression{
 				Coefficient: expr.Coefficient.Sum(b.Coefficient),
 				Base:        expr.Base}
-			return new
 		}
+	} else if a == expr.Base {
+		return CoefficientExpression{
+			Coefficient: expr.Coefficient.Sum(NewIntegerFromInteger(1)),
+			Base:        expr.Base}
 	}
 
 	c := MathExpression{}
@@ -143,5 +146,5 @@ func (expr CoefficientExpression) N() IMathExpression {
 
 // TypeID is util to detect different types
 func (expr CoefficientExpression) TypeID() TypeExpression {
-	return TypeExpressionExponent
+	return TypeExpressionCoefficient
 }

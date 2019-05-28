@@ -292,3 +292,15 @@ func TestExpressionMultiplicationWithSymbols(t *testing.T) {
 		t.Errorf("Expression should be (2 x ^ 3*(2 x ^ 3+11/2))+11/2 but %s", expr2)
 	}
 }
+
+func TestExponentExpression(t *testing.T) {
+	a := atoms.ExponentExpression{Base: atoms.NewIntegerFromInteger(2), Exponent: atoms.NewIntegerFromInteger(3)}
+
+	if a.Multiply(a).Sum(a).String() != "2 ^ 6+2 ^ 3" {
+		t.Errorf("Expression should be 2 ^ 6+2 ^ 3 but %s", a.Multiply(a).Sum(a))
+	}
+
+	if a.Sum(a).Sum(a).String() != "3 2 ^ 3" {
+		t.Errorf("Expression should be 3 2 ^ 3 but %s", a.Sum(a).Sum(a))
+	}
+}
