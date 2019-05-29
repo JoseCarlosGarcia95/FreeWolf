@@ -85,11 +85,9 @@ func (expr ExponentExpression) Multiply(a IMathExpression) IMathExpression {
 		b := a.(ExponentExpression)
 
 		if b.Base == expr.Base {
-			new := ExponentExpression{
+			return ExponentExpression{
 				Exponent: expr.Exponent.Sum(b.Exponent),
 				Base:     expr.Base}
-
-			return new
 		}
 
 		new1 := ExponentExpression{
@@ -108,6 +106,10 @@ func (expr ExponentExpression) Multiply(a IMathExpression) IMathExpression {
 		return CoefficientExpression{
 			Base:        expr,
 			Coefficient: a}
+	} else if a.TypeID() == expr.Base.TypeID() && a == expr.Base {
+		return ExponentExpression{
+			Exponent: expr.Exponent.Sum(NewIntegerFromInteger(1)),
+			Base:     expr.Base}
 	}
 
 	c := MathExpression{}
@@ -126,6 +128,26 @@ func (expr ExponentExpression) Divide(a IMathExpression) (IMathExpression, error
 
 			return new, nil
 		}
+	} else if IsNumber(a) {
+		a, err := a.Inverse()
+
+		if err != nil {
+			return nil, err
+		}
+
+		return CoefficientExpression{
+			Base:        expr,
+			Coefficient: a}, nil
+	} else if a.TypeID() == expr.Base.TypeID() && a == expr.Base {
+		newExponent := expr.Exponent.Substract(NewIntegerFromInteger(1))
+
+		if newExponent == NewIntegerFromInteger(0) {
+			return NewIntegerFromInteger(1), nil
+		}
+
+		return ExponentExpression{
+			Exponent: newExponent,
+			Base:     expr.Base}, nil
 	}
 
 	c := MathExpression{}

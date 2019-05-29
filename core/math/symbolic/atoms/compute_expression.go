@@ -6,29 +6,30 @@ import (
 
 // SumExpressionGroupSymbol sum one expression group and symbol.
 func SumExpressionGroupSymbol(expr MathExpression, other IMathExpression) IMathExpression {
-	searchExp := other.(SymbolExpression).Exponent
-	partsLen := len(expr.Parts)
+	/*
+		searchExp := other.(SymbolExpression).Exponent
+		partsLen := len(expr.Parts)
 
-	for i := 0; i < partsLen; i++ {
+		for i := 0; i < partsLen; i++ {
 
-		if expr.Parts[i].TypeID() != TypeExpressionSymbol ||
-			expr.Operators[i] != OperatorSum ||
-			(i+1 < partsLen && expr.Operators[i+1] != OperatorSum) {
-			continue
-		}
+			if expr.Parts[i].TypeID() != TypeExpressionSymbol ||
+				expr.Operators[i] != OperatorSum ||
+				(i+1 < partsLen && expr.Operators[i+1] != OperatorSum) {
+				continue
+			}
 
-		part := expr.Parts[i].(SymbolExpression)
+			part := expr.Parts[i].(SymbolExpression)
 
-		if part.Symbol == other.(SymbolExpression).Symbol {
-			cmp, _ := part.Exponent.Compare(searchExp)
+			if part.Symbol == other.(SymbolExpression).Symbol {
+				cmp, _ := part.Exponent.Compare(searchExp)
 
-			if cmp == 0 {
-				expr.Parts[i] = expr.Parts[i].Sum(other)
-				return expr
+				if cmp == 0 {
+					expr.Parts[i] = expr.Parts[i].Sum(other)
+					return expr
+				}
 			}
 		}
-	}
-
+	*/
 	return nil
 }
 

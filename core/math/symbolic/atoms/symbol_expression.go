@@ -7,9 +7,7 @@ import (
 
 // SymbolExpression represent an algebraic symbol
 type SymbolExpression struct {
-	Exponent    IMathExpression
-	Coefficient IMathExpression
-	Symbol      string
+	Symbol string
 }
 
 // Evaluate evaluate the current IMathExpression
@@ -24,23 +22,7 @@ func (expr SymbolExpression) Simplify() (IMathExpression, error) {
 
 // String return a string from given symbol
 func (expr SymbolExpression) String() string {
-	cmp, _ := NewIntegerFromInteger(1).Compare(expr.Exponent)
-
-	if cmp == 0 {
-
-		cmp2, _ := NewIntegerFromInteger(1).Compare(expr.Coefficient)
-
-		if cmp2 == 0 {
-			return fmt.Sprintf("%s", expr.Symbol)
-		}
-		return fmt.Sprintf("%s %s", expr.Coefficient, expr.Symbol)
-	}
-	cmp2, _ := NewIntegerFromInteger(1).Compare(expr.Coefficient)
-
-	if cmp2 == 0 {
-		return fmt.Sprintf("%s^%s", expr.Symbol, expr.Exponent)
-	}
-	return fmt.Sprintf("%s %s ^ %s", expr.Coefficient, expr.Symbol, expr.Exponent)
+	return fmt.Sprintf("%s", expr.Symbol)
 }
 
 // ToLaTeX return a LaTeX version of symbol
@@ -53,22 +35,10 @@ func (expr SymbolExpression) Sum(a IMathExpression) IMathExpression {
 	if a.TypeID() == expr.TypeID() {
 		b := a.(SymbolExpression)
 
-		cmp, err := b.Exponent.Compare(expr.Exponent)
-
-		if err == nil && cmp == 0 && b.Symbol == expr.Symbol {
-			new := SymbolExpression{
-				Exponent:    expr.Exponent,
-				Coefficient: expr.Coefficient.Sum(b.Coefficient),
-				Symbol:      expr.Symbol}
-			return new
-		}
-
-		if cmp > 0 && err == nil {
-			c := MathExpression{}
-			new := c.Sum(a)
-			new = new.Sum(expr)
-
-			return new
+		if b.Symbol == expr.Symbol {
+			return CoefficientExpression{
+				Coefficient: NewIntegerFromInteger(2),
+				Base:        expr}
 		}
 	}
 
@@ -84,14 +54,8 @@ func (expr SymbolExpression) Substract(a IMathExpression) IMathExpression {
 	if a.TypeID() == expr.TypeID() {
 		b := a.(SymbolExpression)
 
-		cmp, err := b.Exponent.Compare(expr.Exponent)
-
-		if err == nil && cmp == 0 && b.Symbol == expr.Symbol {
-			new := SymbolExpression{
-				Exponent:    expr.Exponent,
-				Coefficient: expr.Coefficient.Substract(b.Coefficient),
-				Symbol:      expr.Symbol}
-			return new
+		if b.Symbol == expr.Symbol {
+			return NewIntegerFromInteger(0)
 		}
 	}
 
@@ -108,31 +72,15 @@ func (expr SymbolExpression) Multiply(a IMathExpression) IMathExpression {
 		b := a.(SymbolExpression)
 
 		if b.Symbol == expr.Symbol {
-			new := SymbolExpression{
-				Exponent:    expr.Exponent.Sum(b.Exponent),
-				Coefficient: expr.Coefficient.Multiply(b.Coefficient),
-				Symbol:      expr.Symbol}
-
-			return new
+			return ExponentExpression{
+				Base:     expr,
+				Exponent: NewIntegerFromInteger(2)}
 		}
 
-		new1 := SymbolExpression{
-			Exponent:    expr.Exponent,
-			Coefficient: expr.Coefficient.Multiply(b.Coefficient),
-			Symbol:      expr.Symbol}
-
-		new2 := SymbolExpression{
-			Exponent:    b.Exponent,
-			Coefficient: NewIntegerFromInteger(1),
-			Symbol:      b.Symbol}
-
-		c := MathExpression{}
-
-		return c.Sum(new1).Multiply(new2)
-
 	} else if IsNumber(a) {
-		expr.Coefficient = expr.Coefficient.Multiply(a)
-		return expr
+		return CoefficientExpression{
+			Base:        expr,
+			Coefficient: a}
 	}
 
 	c := MathExpression{}
@@ -145,14 +93,7 @@ func (expr SymbolExpression) Divide(a IMathExpression) (IMathExpression, error) 
 		b := a.(SymbolExpression)
 
 		if b.Symbol == expr.Symbol {
-			c, err := expr.Exponent.Divide(b.Exponent)
-
-			new := SymbolExpression{
-				Exponent:    c,
-				Coefficient: expr.Coefficient.Substract(b.Coefficient),
-				Symbol:      expr.Symbol}
-
-			return new, err
+			return NewIntegerFromInteger(1), nil
 		}
 	}
 
@@ -175,10 +116,7 @@ func (expr SymbolExpression) Inverse() (IMathExpression, error) {
 
 // N return the current numeric value.
 func (expr SymbolExpression) N() IMathExpression {
-	return SymbolExpression{
-		Exponent:    expr.Exponent.N(),
-		Coefficient: expr.Coefficient.N(),
-		Symbol:      expr.Symbol}
+	return expr
 
 }
 

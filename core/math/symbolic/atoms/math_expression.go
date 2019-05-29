@@ -134,6 +134,29 @@ func (expr MathExpression) SortNumbersInExpression() MathExpression {
 	return expr
 }
 
+// CalculateDegree First version for calculate degree of given expression.
+func CalculateDegree(expr IMathExpression) int {
+	degree := -1
+	if expr.TypeID() == TypeExpressionSymbol {
+		degree = 1
+	} else if expr.TypeID() == TypeExpressionCoefficient {
+		coeff := expr.(CoefficientExpression)
+		if coeff.Base.TypeID() == TypeExpressionSymbol {
+			degree = 1
+		} else if coeff.Base.TypeID() == TypeExpressionExponent {
+			if coeff.Base.(ExponentExpression).Base.TypeID() == TypeExpressionSymbol {
+				exponent := coeff.Base.(ExponentExpression)
+
+				if exponent.Exponent.TypeID() == TypeIntegerExpression {
+					degree = int(exponent.Exponent.(IntegerExpression).Value.Int64())
+				}
+			}
+		}
+	}
+
+	return degree
+}
+
 // SortSymbolsInExpression work for sorting symbols on math expression
 func (expr MathExpression) SortSymbolsInExpression() MathExpression {
 	partsLen := len(expr.Parts)
@@ -143,9 +166,10 @@ func (expr MathExpression) SortSymbolsInExpression() MathExpression {
 	var exponents []int
 
 	for i := 0; i < partsLen; i++ {
-		if expr.Parts[i].TypeID() == TypeExpressionSymbol &&
-			expr.Parts[i].(SymbolExpression).Exponent.TypeID() == TypeIntegerExpression {
-			expInt := int(expr.Parts[i].(SymbolExpression).Exponent.(IntegerExpression).Value.Int64())
+		degree := CalculateDegree(expr.Parts[i])
+
+		if degree != -1 {
+			expInt := degree
 			symbols[expInt] = i
 			exponents = append(exponents, expInt)
 		}

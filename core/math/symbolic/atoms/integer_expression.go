@@ -100,7 +100,10 @@ func (expr IntegerExpression) Multiply(a IMathExpression) IMathExpression {
 		return FracExpression{
 			Numerator:   expr.Multiply(b.Numerator),
 			Denominator: b.Denominator}
-	} else if a.TypeID() == TypeExpressionReal || a.TypeID() == TypeExpressionSymbol {
+	} else if a.TypeID() == TypeExpressionReal ||
+		a.TypeID() == TypeExpressionSymbol ||
+		a.TypeID() == TypeExpressionCoefficient ||
+		a.TypeID() == TypeExpressionExponent {
 		return a.Multiply(expr)
 	}
 

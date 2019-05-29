@@ -60,16 +60,19 @@ func (expr CoefficientExpression) Substract(a IMathExpression) IMathExpression {
 		b := a.(CoefficientExpression)
 
 		if b.Base == expr.Base {
-			new := CoefficientExpression{
+			return CoefficientExpression{
 				Coefficient: expr.Coefficient.Substract(b.Coefficient),
 				Base:        expr.Base}
-			return new
 		}
+	} else if expr.Base.TypeID() == a.TypeID() && expr.Base == a {
+		return CoefficientExpression{
+			Coefficient: expr.Coefficient.Substract(NewIntegerFromInteger(1)),
+			Base:        expr.Base}
 	}
 
 	c := MathExpression{}
 	new := c.Sum(expr)
-	new = new.Sum(a)
+	new = new.Substract(a)
 
 	return new
 }
@@ -81,12 +84,15 @@ func (expr CoefficientExpression) Multiply(a IMathExpression) IMathExpression {
 
 		new := CoefficientExpression{
 			Coefficient: expr.Coefficient.Multiply(b.Coefficient),
-			Base:        expr.Base.Multiply(expr.Base)}
+			Base:        expr.Base.Multiply(b.Base)}
 
 		return new
 
 	} else if IsNumber(a) {
 		expr.Coefficient = expr.Coefficient.Multiply(a)
+		return expr
+	} else if a.TypeID() == expr.Base.TypeID() || expr.Base.TypeID() == TypeExpressionExponent {
+		expr.Base = expr.Base.Multiply(a)
 		return expr
 	}
 
@@ -96,6 +102,8 @@ func (expr CoefficientExpression) Multiply(a IMathExpression) IMathExpression {
 
 // Divide return the sum of two math expression.
 func (expr CoefficientExpression) Divide(a IMathExpression) (IMathExpression, error) {
+	var err error
+
 	if a.TypeID() == expr.TypeID() {
 		b := a.(CoefficientExpression)
 
@@ -115,13 +123,33 @@ func (expr CoefficientExpression) Divide(a IMathExpression) (IMathExpression, er
 			Coefficient: d,
 			Base:        c}
 
-		return new, err
+		return new, nil
 
+	} else if IsNumber(a) {
+		expr.Coefficient, err = expr.Coefficient.Divide(a)
+
+		cmp, err := expr.Coefficient.Compare(NewIntegerFromInteger(1))
+
+		if cmp == 0 {
+			return expr.Base, nil
+		}
+
+		return expr, err
+	} else if a.TypeID() == expr.Base.TypeID() || expr.Base.TypeID() == TypeExpressionExponent {
+		expr.Base, err = expr.Base.Divide(a)
+
+		cmp, err := expr.Base.Compare(NewIntegerFromInteger(1))
+
+		if cmp == 0 {
+			return expr.Coefficient, nil
+		}
+
+		return expr, err
 	}
 
 	c := MathExpression{}
 	new := c.Sum(expr)
-	new, err := new.Divide(a)
+	new, err = new.Divide(a)
 	return new, err
 }
 
@@ -140,7 +168,7 @@ func (expr CoefficientExpression) Inverse() (IMathExpression, error) {
 func (expr CoefficientExpression) N() IMathExpression {
 	return CoefficientExpression{
 		Coefficient: expr.Coefficient.N(),
-		Base:        expr.Base}
+		Base:        expr.Base.N()}
 
 }
 
