@@ -255,7 +255,7 @@ func TestSymbolsBasic(t *testing.T) {
 	}
 
 	if a.Multiply(sym1).Multiply(sym1).Multiply(sym1).Multiply(sym1).String() != "3 x ^ 4" {
-		t.Errorf("Expression should be 3 x ^ 4, but %s", a.Multiply(sym1).Multiply(sym1).Multiply(sym1).Multiply(sym1))
+		t.Errorf("7Expression should be 3 x ^ 4, but %s", a.Multiply(sym1).Multiply(sym1).Multiply(sym1).Multiply(sym1))
 	}
 }
 

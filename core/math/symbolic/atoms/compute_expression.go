@@ -4,35 +4,6 @@ import (
 	"errors"
 )
 
-// SumExpressionGroupSymbol sum one expression group and symbol.
-func SumExpressionGroupSymbol(expr MathExpression, other IMathExpression) IMathExpression {
-	/*
-		searchExp := other.(SymbolExpression).Exponent
-		partsLen := len(expr.Parts)
-
-		for i := 0; i < partsLen; i++ {
-
-			if expr.Parts[i].TypeID() != TypeExpressionSymbol ||
-				expr.Operators[i] != OperatorSum ||
-				(i+1 < partsLen && expr.Operators[i+1] != OperatorSum) {
-				continue
-			}
-
-			part := expr.Parts[i].(SymbolExpression)
-
-			if part.Symbol == other.(SymbolExpression).Symbol {
-				cmp, _ := part.Exponent.Compare(searchExp)
-
-				if cmp == 0 {
-					expr.Parts[i] = expr.Parts[i].Sum(other)
-					return expr
-				}
-			}
-		}
-	*/
-	return nil
-}
-
 // SumExpressionNumber sum one expression group and symbol.
 func SumExpressionNumber(expr MathExpression, other IMathExpression) IMathExpression {
 	partsLen := len(expr.Parts)
@@ -65,14 +36,7 @@ func SumExpression(a IMathExpression, b IMathExpression) IMathExpression {
 		expr = b.(MathExpression)
 	}
 
-	if other.TypeID() == TypeExpressionSymbol {
-		result := SumExpressionGroupSymbol(expr.(MathExpression), other)
-
-		if result != nil {
-			return result
-		}
-
-	} else if IsNumber(other) {
+	if IsNumber(other) {
 		result := SumExpressionNumber(expr.(MathExpression), other)
 
 		if result != nil {
