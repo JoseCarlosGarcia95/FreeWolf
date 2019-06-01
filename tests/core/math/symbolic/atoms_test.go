@@ -285,19 +285,21 @@ func TestSymbolSort(t *testing.T) {
 	}
 }
 
-/*
 func TestExpressionMultiplicationWithSymbols(t *testing.T) {
 	a := atoms.NewIntegerFromInteger(2)
 	b := atoms.NewIntegerFromInteger(3)
 	c := atoms.NewFracFromIntegers(1, 2)
 
-	sym1 := atoms.SymbolExpression{Symbol: "x", Exponent: b, Coefficient: a}
+	sym1 := atoms.SymbolExpression{Symbol: "x"}
+	exp1 := atoms.ExponentExpression{Exponent: b, Base: sym1}
+
+	coeff1 := atoms.CoefficientExpression{Coefficient: a, Base: exp1}
 
 	m := atoms.MathExpression{}
 	expr1 := m.Sum(a)
 	expr1 = expr1.Sum(b)
 	expr1 = expr1.Sum(c)
-	expr1 = expr1.Sum(sym1)
+	expr1 = expr1.Sum(coeff1)
 
 	expr2, err := expr1.Multiply(expr1).Evaluate()
 
@@ -321,4 +323,3 @@ func TestExponentExpression(t *testing.T) {
 		t.Errorf("Expression should be 3 2 ^ 3 but %s", a.Sum(a).Sum(a))
 	}
 }
-*/
