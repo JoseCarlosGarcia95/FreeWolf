@@ -164,11 +164,6 @@ func (expr FracExpression) Compare(a IMathExpression) (int, error) {
 	return result, err
 }
 
-// Derivative of current expression.
-func (expr FracExpression) Derivative() (IMathExpression, error) {
-	return IntegerExpression{Value: big.NewInt(0)}, nil
-}
-
 // Inverse expression by another expression.
 func (expr FracExpression) Inverse() (IMathExpression, error) {
 	return FracExpression{

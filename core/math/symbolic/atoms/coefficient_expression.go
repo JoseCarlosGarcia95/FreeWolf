@@ -12,167 +12,110 @@ type CoefficientExpression struct {
 }
 
 // Evaluate evaluate the current IMathExpression
-func (expr CoefficientExpression) Evaluate() (IMathExpression, error) {
-	return expr, nil
+func (expression CoefficientExpression) Evaluate() (IMathExpression, error) {
+	return expression, nil
 }
 
 // Simplify the current expression
-func (expr CoefficientExpression) Simplify() (IMathExpression, error) {
-	return expr, nil
+func (expression CoefficientExpression) Simplify() (IMathExpression, error) {
+	return expression, nil
 }
 
 // String return a string from given symbol
-func (expr CoefficientExpression) String() string {
-	return fmt.Sprintf("%s %s", expr.Coefficient, expr.Base)
+func (expression CoefficientExpression) String() string {
+	return fmt.Sprintf("%s %s", expression.Coefficient, expression.Base)
 }
 
 // ToLaTeX return a LaTeX version of symbol
-func (expr CoefficientExpression) ToLaTeX() string {
-	return expr.String()
+func (expression CoefficientExpression) ToLaTeX() string {
+	return expression.String()
 }
 
 // Sum symbol + other type.
-func (expr CoefficientExpression) Sum(a IMathExpression) IMathExpression {
-	if a.TypeID() == expr.TypeID() {
-		b := a.(CoefficientExpression)
+func (expression CoefficientExpression) Sum(add IMathExpression) IMathExpression {
+	if add.TypeID() == expression.TypeID() {
+		addCoefficient := add.(CoefficientExpression)
 
-		if b.Base == expr.Base {
+		if addCoefficient.Base == expression.Base {
+			coefficientSum := expression.Coefficient.Sum(addCoefficient.Coefficient)
+
+			if coefficientSum == NewIntegerFromInteger(0) {
+				return NewIntegerFromInteger(0)
+			} else if coefficientSum == NewIntegerFromInteger(1) {
+				return expression.Base
+			}
+
 			return CoefficientExpression{
-				Coefficient: expr.Coefficient.Sum(b.Coefficient),
-				Base:        expr.Base}
+				Coefficient: coefficientSum,
+				Base:        expression.Base}
 		}
-	} else if a == expr.Base {
+	} else if add == expression.Base {
 		return CoefficientExpression{
-			Coefficient: expr.Coefficient.Sum(NewIntegerFromInteger(1)),
-			Base:        expr.Base}
+			Coefficient: expression.Coefficient.Sum(NewIntegerFromInteger(1)),
+			Base:        expression.Base}
 	}
 
-	c := MathExpression{}
-	new := c.Sum(expr)
-	new = new.Sum(a)
+	new := MathExpression{}.Sum(expression)
+	new = new.Sum(add)
 
 	return new
 }
 
 // Substract return the substract of two math expression.
-func (expr CoefficientExpression) Substract(a IMathExpression) IMathExpression {
-	if a.TypeID() == expr.TypeID() {
-		b := a.(CoefficientExpression)
-
-		if b.Base == expr.Base {
-			return CoefficientExpression{
-				Coefficient: expr.Coefficient.Substract(b.Coefficient),
-				Base:        expr.Base}
-		}
-	} else if expr.Base.TypeID() == a.TypeID() && expr.Base == a {
-		return CoefficientExpression{
-			Coefficient: expr.Coefficient.Substract(NewIntegerFromInteger(1)),
-			Base:        expr.Base}
-	}
-
-	c := MathExpression{}
-	new := c.Sum(expr)
-	new = new.Substract(a)
-
-	return new
+func (expression CoefficientExpression) Substract(substract IMathExpression) IMathExpression {
+	return expression.Sum(NewIntegerFromInteger(-1).Multiply(substract))
 }
 
 // Multiply return the sum of two math expression.
-func (expr CoefficientExpression) Multiply(a IMathExpression) IMathExpression {
-	if a.TypeID() == expr.TypeID() {
-		b := a.(CoefficientExpression)
+func (expression CoefficientExpression) Multiply(factor IMathExpression) IMathExpression {
+	if factor.TypeID() == expression.TypeID() {
+		factorCoefficient := factor.(CoefficientExpression)
 
-		new := CoefficientExpression{
-			Coefficient: expr.Coefficient.Multiply(b.Coefficient),
-			Base:        expr.Base.Multiply(b.Base)}
+		return CoefficientExpression{
+			Coefficient: expression.Coefficient.Multiply(factorCoefficient.Coefficient),
+			Base:        expression.Base.Multiply(factorCoefficient.Base)}
 
-		return new
-
-	} else if IsNumber(a) {
-		expr.Coefficient = expr.Coefficient.Multiply(a)
-		return expr
-	} else if a.TypeID() == expr.Base.TypeID() || expr.Base.TypeID() == TypeExpressionExponent {
-		expr.Base = expr.Base.Multiply(a)
-		return expr
+	} else if IsNumber(factor) {
+		expression.Coefficient = expression.Coefficient.Multiply(factor)
+		return expression
+	} else if factor.TypeID() == expression.Base.TypeID() || expression.Base.TypeID() == TypeExpressionExponent {
+		expression.Base = expression.Base.Multiply(factor)
+		return expression
 	}
 
-	c := MathExpression{}
-	return c.Sum(expr).Multiply(a)
+	return MathExpression{}.Sum(expression).Multiply(factor)
 }
 
 // Divide return the sum of two math expression.
-func (expr CoefficientExpression) Divide(a IMathExpression) (IMathExpression, error) {
-	var err error
+func (expression CoefficientExpression) Divide(divisor IMathExpression) (IMathExpression, error) {
+	inverse, err := divisor.Inverse()
 
-	if a.TypeID() == expr.TypeID() {
-		b := a.(CoefficientExpression)
-
-		c, err := expr.Base.Divide(b.Base)
-
-		if err != nil {
-			return nil, err
-		}
-
-		d, err := expr.Coefficient.Divide(b.Base)
-
-		if err != nil {
-			return nil, err
-		}
-
-		new := CoefficientExpression{
-			Coefficient: d,
-			Base:        c}
-
-		return new, nil
-
-	} else if IsNumber(a) {
-		expr.Coefficient, err = expr.Coefficient.Divide(a)
-
-		cmp, err := expr.Coefficient.Compare(NewIntegerFromInteger(1))
-
-		if cmp == 0 {
-			return expr.Base, nil
-		}
-
-		return expr, err
-	} else if a.TypeID() == expr.Base.TypeID() || expr.Base.TypeID() == TypeExpressionExponent {
-		expr.Base, err = expr.Base.Divide(a)
-
-		cmp, err := expr.Base.Compare(NewIntegerFromInteger(1))
-
-		if cmp == 0 {
-			return expr.Coefficient, nil
-		}
-
-		return expr, err
+	if err != nil {
+		return nil, err
 	}
 
-	c := MathExpression{}
-	new := c.Sum(expr)
-	new, err = new.Divide(a)
-	return new, err
+	return expression.Multiply(inverse), nil
 }
 
 // Compare two IMathExpression return 0, if equal and + if a<
-func (expr CoefficientExpression) Compare(a IMathExpression) (int, error) {
+func (expression CoefficientExpression) Compare(compare IMathExpression) (int, error) {
 	return 0, errors.New("symbols couldn't be compared")
 }
 
 // Inverse expression by another expression.
-func (expr CoefficientExpression) Inverse() (IMathExpression, error) {
-	a := NewIntegerFromInteger(1)
-	return a.Divide(expr)
+func (expression CoefficientExpression) Inverse() (IMathExpression, error) {
+	return NewIntegerFromInteger(1).Divide(expression)
 }
 
 // N return the current numeric value.
-func (expr CoefficientExpression) N() IMathExpression {
+func (expression CoefficientExpression) N() IMathExpression {
 	return CoefficientExpression{
-		Coefficient: expr.Coefficient.N(),
-		Base:        expr.Base.N()}
+		Coefficient: expression.Coefficient.N(),
+		Base:        expression.Base.N()}
 
 }
 
 // TypeID is util to detect different types
-func (expr CoefficientExpression) TypeID() TypeExpression {
+func (expression CoefficientExpression) TypeID() TypeExpression {
 	return TypeExpressionCoefficient
 }

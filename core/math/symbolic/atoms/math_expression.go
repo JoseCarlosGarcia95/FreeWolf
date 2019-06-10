@@ -33,10 +33,6 @@ const (
 	OperatorSum OperatorsBetweenExpressions = 0
 	// OperatorMult represent abstract multiplication.
 	OperatorMult OperatorsBetweenExpressions = 1
-	// OperatorSubstract represent abstract substraction.
-	OperatorSubstract OperatorsBetweenExpressions = 2
-	// OperatorDivide represent abstract division.
-	OperatorDivide OperatorsBetweenExpressions = 3
 )
 
 // IMathExpression abstract the idea of MathExpression.
@@ -84,8 +80,8 @@ func (expr MathExpression) Substract(a IMathExpression) IMathExpression {
 			expr.Parts = append(expr.Parts, b.Parts[i].Multiply(c))
 		}
 	} else {
-		expr.Operators = append(expr.Operators, OperatorSubstract)
-		expr.Parts = append(expr.Parts, a)
+		expr.Operators = append(expr.Operators, OperatorSum)
+		expr.Parts = append(expr.Parts, a.Multiply(NewIntegerFromInteger(1)))
 	}
 
 	return expr
@@ -100,11 +96,14 @@ func (expr MathExpression) Multiply(a IMathExpression) IMathExpression {
 }
 
 // Divide expression by another expression.
-func (expr MathExpression) Divide(a IMathExpression) (IMathExpression, error) {
-	expr.Parts = append(expr.Parts, a)
-	expr.Operators = append(expr.Operators, OperatorDivide)
+func (expr MathExpression) Divide(divisor IMathExpression) (IMathExpression, error) {
+	inverse, err := divisor.Inverse()
 
-	return expr, nil
+	if err != nil {
+		return nil, err
+	}
+
+	return expr.Multiply(inverse), nil
 }
 
 // Inverse expression by another expression.
@@ -151,6 +150,12 @@ func CalculateDegree(expr IMathExpression) int {
 					degree = int(exponent.Exponent.(IntegerExpression).Value.Int64())
 				}
 			}
+		}
+	} else if expr.TypeID() == TypeExpressionExponent {
+		exponent := expr.(ExponentExpression)
+
+		if exponent.Exponent.TypeID() == TypeIntegerExpression {
+			degree = int(exponent.Exponent.(IntegerExpression).Value.Int64())
 		}
 	}
 
@@ -268,8 +273,7 @@ func ParenthesisNeeded(expr IMathExpression) bool {
 	operatorLen := len(expr.(MathExpression).Operators)
 
 	for i := 1; i < operatorLen; i++ {
-		if expr.(MathExpression).Operators[i] == OperatorSum ||
-			expr.(MathExpression).Operators[i] == OperatorSubstract {
+		if expr.(MathExpression).Operators[i] == OperatorSum {
 			return true
 		}
 	}
@@ -308,10 +312,6 @@ func (op OperatorsBetweenExpressions) String() string {
 		return "+"
 	case OperatorMult:
 		return "*"
-	case OperatorDivide:
-		return "/"
-	case OperatorSubstract:
-		return "-"
 	}
 
 	return ""

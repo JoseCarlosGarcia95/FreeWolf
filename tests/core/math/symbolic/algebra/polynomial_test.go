@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/JoseCarlosGarcia95/FreeWolf/core/math/symbolic/algebra"
@@ -37,5 +38,28 @@ func TestCheckPolynomial(t *testing.T) {
 	if !algebra.IsPolynomial(result.Multiply(result)) {
 		t.Errorf("%s should be a polynomial", result.Multiply(result))
 	}
+
+}
+
+func TestGetCoefficients(t *testing.T) {
+	a := atoms.NewIntegerFromInteger(3)
+	b := atoms.NewIntegerFromInteger(2)
+
+	sym1 := atoms.SymbolExpression{Symbol: "x"}
+	sym2 := atoms.SymbolExpression{Symbol: "y"}
+
+	exp1 := atoms.ExponentExpression{Exponent: b, Base: sym1}
+
+	coeff1 := atoms.CoefficientExpression{Coefficient: a, Base: exp1}
+
+	result := a.Sum(coeff1).Sum(b).Sum(sym2)
+
+	fmt.Println(result)
+
+	fmt.Println(algebra.GetCoefficientByDegree(result, 0, sym1))
+
+	fmt.Println(algebra.CalculateDegree(result, sym1))
+
+	fmt.Println(algebra.Solve(result, sym2))
 
 }

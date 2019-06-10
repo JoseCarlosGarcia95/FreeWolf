@@ -5,19 +5,19 @@ import (
 )
 
 // SumExpressionNumber sum one expression group and symbol.
-func SumExpressionNumber(expr MathExpression, other IMathExpression) IMathExpression {
-	partsLen := len(expr.Parts)
+func SumExpressionNumber(expression MathExpression, add IMathExpression) IMathExpression {
+	partsLen := len(expression.Parts)
 
 	for i := 0; i < partsLen; i++ {
 
-		if !IsNumber(expr.Parts[i]) ||
-			expr.Operators[i] != OperatorSum ||
-			(i+1 < partsLen && expr.Operators[i+1] != OperatorSum) {
+		if !IsNumber(expression.Parts[i]) ||
+			expression.Operators[i] != OperatorSum ||
+			(i+1 < partsLen && expression.Operators[i+1] != OperatorSum) {
 			continue
 		}
 
-		expr.Parts[i] = expr.Parts[i].Sum(other)
-		return expr
+		expression.Parts[i] = expression.Parts[i].Sum(add)
+		return expression
 	}
 
 	return nil
@@ -64,12 +64,8 @@ func ComputeOp(op OperatorsBetweenExpressions, a IMathExpression, b IMathExpress
 	switch op {
 	case OperatorSum:
 		return SumOperator(a, b), nil
-	case OperatorSubstract:
-		return SumOperator(a, b.Multiply(NewIntegerFromInteger(-1))), nil
 	case OperatorMult:
 		return a.Multiply(b), nil
-	case OperatorDivide:
-		return a.Divide(b)
 	}
 
 	return nil, errors.New("undefined operation")
@@ -116,12 +112,12 @@ func (op OperatorsBetweenExpressions) GetPrecedenceLevel() (int, bool) {
 	precedence := 0
 	right := false
 	switch op {
-	case OperatorSum, OperatorSubstract:
+	case OperatorSum:
 		precedence = 1
 		right = false
 		break
 
-	case OperatorMult, OperatorDivide:
+	case OperatorMult:
 		precedence = 2
 		right = false
 		break
