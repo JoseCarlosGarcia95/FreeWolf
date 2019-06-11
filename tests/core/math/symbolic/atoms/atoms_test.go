@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -312,7 +313,20 @@ func TestExpressionMultiplicationWithSymbols(t *testing.T) {
 	}
 }
 
-func TestExponentExpression(t *testing.T) {
+func TestExponentExpressionBasic(t *testing.T) {
+	frac1 := atoms.NewFracFromIntegers(1, 2)
+
+	num1 := atoms.NewIntegerFromInteger(18)
+	num2 := atoms.NewIntegerFromInteger(7)
+
+	expr1 := atoms.MathExpression{}.Sum(num1).Sum(num2)
+
+	exponent := atoms.ExponentExpression{Base: expr1, Exponent: frac1}
+
+	fmt.Println(exponent.Simplify())
+}
+
+func TestExponentExpressionSymbols(t *testing.T) {
 	a := atoms.ExponentExpression{Base: atoms.NewIntegerFromInteger(2), Exponent: atoms.NewIntegerFromInteger(3)}
 
 	if a.Multiply(a).Sum(a).String() != "2 ^ 6+2 ^ 3" {
@@ -322,4 +336,5 @@ func TestExponentExpression(t *testing.T) {
 	if a.Sum(a).Sum(a).String() != "3 2 ^ 3" {
 		t.Errorf("Expression should be 3 2 ^ 3 but %s", a.Sum(a).Sum(a))
 	}
+
 }

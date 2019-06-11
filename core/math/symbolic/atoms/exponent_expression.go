@@ -13,12 +13,40 @@ type ExponentExpression struct {
 
 // Evaluate evaluate the current IMathExpression
 func (expression ExponentExpression) Evaluate() (IMathExpression, error) {
-	return expression, nil
+	newbase, err := expression.Base.Evaluate()
+
+	if err != nil {
+		return nil, err
+	}
+
+	newexponent, err := expression.Exponent.Evaluate()
+
+	if err != nil {
+		return nil, err
+	}
+
+	zero := NewIntegerFromInteger(0)
+
+	if newbase == zero {
+		return newbase, nil
+	}
+
+	if newexponent == zero {
+		return NewIntegerFromInteger(1), nil
+	}
+
+	return ExponentExpression{Base: newbase, Exponent: newexponent}, nil
 }
 
 // Simplify the current expression
 func (expression ExponentExpression) Simplify() (IMathExpression, error) {
-	return expression, nil
+	evalExpression, err := expression.Evaluate()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return evalExpression, nil
 }
 
 // String return a string from given symbol
