@@ -42,24 +42,19 @@ func TestCheckPolynomial(t *testing.T) {
 }
 
 func TestGetCoefficients(t *testing.T) {
-	a := atoms.NewIntegerFromInteger(3)
-	b := atoms.NewIntegerFromInteger(2)
+	a := atoms.NewIntegerFromInteger(1)
+	b := atoms.NewIntegerFromInteger(-25)
 
 	sym1 := atoms.SymbolExpression{Symbol: "x"}
-	sym2 := atoms.SymbolExpression{Symbol: "y"}
 
-	exp1 := atoms.ExponentExpression{Exponent: b, Base: sym1}
+	exp1 := atoms.ExponentExpression{Exponent: atoms.NewIntegerFromInteger(2), Base: sym1}
 
 	coeff1 := atoms.CoefficientExpression{Coefficient: a, Base: exp1}
 
-	result := a.Sum(coeff1).Sum(b).Sum(sym2)
+	result := atoms.MathExpression{}.Sum(coeff1).Sum(b)
 
-	fmt.Println(result)
+	fmt.Println(algebra.Solve(result, sym1))
 
-	fmt.Println(algebra.GetCoefficientByDegree(result, 0, sym1))
-
-	fmt.Println(algebra.CalculateDegree(result, sym1))
-
-	fmt.Println(algebra.Solve(result, sym2))
+	//fmt.Println(sols[0].ToLaTeX())
 
 }

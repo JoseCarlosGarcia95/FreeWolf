@@ -21,131 +21,113 @@ func NewFracFromIntegers(x int64, y int64) FracExpression {
 }
 
 // Simplify could return a new FracExpression or a new Integer expression.
-func (expr FracExpression) Simplify() (IMathExpression, error) {
-	if expr.Numerator.TypeID() == expr.Denominator.TypeID() && expr.Numerator.TypeID() == TypeIntegerExpression {
-		a := expr.Numerator.(IntegerExpression).Value
-		b := expr.Denominator.(IntegerExpression).Value
+func (expression FracExpression) Simplify() (IMathExpression, error) {
+	if expression.Numerator.TypeID() == expression.Denominator.TypeID() &&
+		expression.Numerator.TypeID() == TypeIntegerExpression {
+		numerator := expression.Numerator.(IntegerExpression).Value
+		denominator := expression.Denominator.(IntegerExpression).Value
 
-		if b.Cmp(big.NewInt(0)) == 0 {
+		if denominator.Cmp(big.NewInt(0)) == 0 {
 			return nil, errors.New("denominator should be different of zero")
 		}
 
-		if a.Cmp(big.NewInt(0)) == 0 {
+		if numerator.Cmp(big.NewInt(0)) == 0 {
 			return NewIntegerFromInteger(0), nil
 		}
 
-		c := big.NewInt(1).GCD(nil, nil, big.NewInt(1).Abs(a), &(*b))
+		c := big.NewInt(1).GCD(nil, nil, big.NewInt(1).Abs(numerator), &(*denominator))
 
-		a.Div(a, c)
-		b.Div(b, c)
+		numerator.Div(numerator, c)
+		denominator.Div(denominator, c)
 
-		if b.Cmp(big.NewInt(1)) == 0 {
-			return IntegerExpression{Value: a}, nil
+		if denominator.Cmp(big.NewInt(1)) == 0 {
+			return IntegerExpression{Value: numerator}, nil
 		}
 	}
-	return expr, nil
+	return expression, nil
 }
 
 // Sum return a sum.
-func (expr FracExpression) Sum(a IMathExpression) IMathExpression {
-	if a.TypeID() == TypeIntegerExpression {
-		return a.Sum(expr)
+func (expression FracExpression) Sum(add IMathExpression) IMathExpression {
+	if add.TypeID() == TypeIntegerExpression {
+		return add.Sum(expression)
 	}
 
-	if expr.TypeID() == a.TypeID() {
-		numerator := expr.Numerator.Multiply(a.(FracExpression).Denominator)
-		numerator = numerator.Sum(a.(FracExpression).Numerator.Multiply(expr.Denominator))
+	if expression.TypeID() == add.TypeID() {
+		numerator := expression.Numerator.Multiply(add.(FracExpression).Denominator)
+		numerator = numerator.Sum(add.(FracExpression).Numerator.Multiply(expression.Denominator))
 
-		denominator := expr.Denominator.Multiply(a.(FracExpression).Denominator)
+		denominator := expression.Denominator.Multiply(add.(FracExpression).Denominator)
 		simplified, _ := FracExpression{Numerator: numerator, Denominator: denominator}.Simplify()
 
 		return simplified
-	} else if a.TypeID() == TypeExpressionReal {
-		return a.Sum(expr)
+	} else if add.TypeID() == TypeExpressionReal {
+		return add.Sum(expression)
 	}
 
-	c := MathExpression{}
-	new := c.Sum(expr)
-	new = new.Sum(a)
-
-	return new
+	return MathExpression{}.Sum(expression).Sum(add)
 }
 
 // Substract return a sum.
-func (expr FracExpression) Substract(a IMathExpression) IMathExpression {
-	if a.TypeID() == TypeIntegerExpression {
-		return a.Substract(expr).Multiply(NewIntegerFromInteger(-1))
-	}
+func (expression FracExpression) Substract(substract IMathExpression) IMathExpression {
+	return expression.Sum(NewIntegerFromInteger(-1).Multiply(substract))
 
-	if expr.TypeID() == a.TypeID() {
-		simplified, _ := FracExpression{
-			Numerator:   expr.Numerator.Multiply(a.(FracExpression).Denominator).Substract(a.(FracExpression).Numerator.Multiply(expr.Denominator)),
-			Denominator: expr.Denominator.Multiply(a.(FracExpression).Denominator)}.Simplify()
-
-		return simplified
-	} else if a.TypeID() == TypeExpressionReal {
-		return a.Substract(expr).Multiply(NewIntegerFromInteger(-1))
-	}
-
-	c := MathExpression{}
-	new := c.Sum(expr)
-	new = new.Substract(a)
-
-	return new
 }
 
 // Evaluate evaluate the current IMathExpression
-func (expr FracExpression) Evaluate() (IMathExpression, error) {
-	return expr.Simplify()
+func (expression FracExpression) Evaluate() (IMathExpression, error) {
+	return expression.Simplify()
 }
 
 // Multiply return a simplified version of expression.
-func (expr FracExpression) Multiply(a IMathExpression) IMathExpression {
-	if a.TypeID() == TypeIntegerExpression {
-		return a.Multiply(expr)
+func (expression FracExpression) Multiply(factor IMathExpression) IMathExpression {
+	if factor.TypeID() == TypeIntegerExpression {
+		return factor.Multiply(expression)
 	}
 
-	if expr.TypeID() == a.TypeID() {
+	if expression.TypeID() == factor.TypeID() {
 		simplified, _ := FracExpression{
-			Numerator:   expr.Numerator.Multiply(a.(FracExpression).Numerator),
-			Denominator: expr.Denominator.Multiply(a.(FracExpression).Denominator)}.Simplify()
+			Numerator: expression.Numerator.
+				Multiply(factor.(FracExpression).Numerator),
+			Denominator: expression.Denominator.
+				Multiply(factor.(FracExpression).Denominator)}.Simplify()
 
 		return simplified
-	} else if a.TypeID() == TypeExpressionReal || a.TypeID() == TypeExpressionSymbol {
-		return a.Multiply(expr)
+	} else if factor.TypeID() == TypeExpressionReal ||
+		factor.TypeID() == TypeExpressionSymbol ||
+		factor.TypeID() == TypeExpressionCoefficient ||
+		factor.TypeID() == TypeExpressionExponent {
+		return factor.Multiply(expression)
 	}
-	c := MathExpression{}
-	new := c.Sum(expr)
-	new = new.Multiply(a)
 
-	return new
+	return MathExpression{}.Sum(expression).Multiply(factor)
 }
 
 // Divide return a simplified version of expression.
-func (expr FracExpression) Divide(a IMathExpression) (IMathExpression, error) {
-	a, err := a.Inverse()
+func (expression FracExpression) Divide(divisor IMathExpression) (IMathExpression, error) {
+	inverse, err := divisor.Inverse()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return expr.Multiply(a), nil
+	return expression.Multiply(inverse), nil
 }
 
 // Compare two IMathExpression return 0, if equal and + if a<
-func (expr FracExpression) Compare(a IMathExpression) (int, error) {
+func (expression FracExpression) Compare(a IMathExpression) (int, error) {
 	a, _ = a.Simplify()
 	result := 0
 	var err error
 
-	if expr.Numerator.TypeID() == TypeIntegerExpression &&
-		expr.Denominator.TypeID() == TypeIntegerExpression {
+	if expression.Numerator.TypeID() == TypeIntegerExpression &&
+		expression.Denominator.TypeID() == TypeIntegerExpression {
 
 		if a.TypeID() == TypeIntegerExpression ||
 			(a.TypeID() == TypeFracExpression &&
 				a.(FracExpression).Numerator.TypeID() == TypeIntegerExpression &&
 				a.(FracExpression).Denominator.TypeID() == TypeIntegerExpression) {
-			c := expr.Substract(a)
+			c := expression.Substract(a)
 
 			if c.TypeID() == TypeIntegerExpression {
 				result = c.(IntegerExpression).Value.Cmp(big.NewInt(0))
@@ -153,7 +135,7 @@ func (expr FracExpression) Compare(a IMathExpression) (int, error) {
 				result = c.(FracExpression).Numerator.(IntegerExpression).Value.Cmp(big.NewInt(0))
 			}
 		} else if a.TypeID() == TypeExpressionReal {
-			result, err = a.Compare(expr)
+			result, err = a.Compare(expression)
 			result *= -1
 		} else {
 			err = errors.New("unable to compare given types")
@@ -165,36 +147,36 @@ func (expr FracExpression) Compare(a IMathExpression) (int, error) {
 }
 
 // Inverse expression by another expression.
-func (expr FracExpression) Inverse() (IMathExpression, error) {
+func (expression FracExpression) Inverse() (IMathExpression, error) {
 	return FracExpression{
-		Numerator:   expr.Denominator,
-		Denominator: expr.Numerator}.Simplify()
+		Numerator:   expression.Denominator,
+		Denominator: expression.Numerator}.Simplify()
 }
 
 // ToLaTeX return a representation in LaTeX
-func (expr FracExpression) ToLaTeX() string {
-	return fmt.Sprintf("\\frac{%s}{%s}", expr.Numerator, expr.Denominator)
+func (expression FracExpression) ToLaTeX() string {
+	return fmt.Sprintf("\\frac{%s}{%s}", expression.Numerator, expression.Denominator)
 }
 
 // N return a numeric value.
-func (expr FracExpression) N() IMathExpression {
-	if expr.Numerator.TypeID() == TypeIntegerExpression && expr.Denominator.TypeID() == TypeIntegerExpression {
-		a := expr.Numerator.N()
-		b := expr.Denominator.N()
+func (expression FracExpression) N() IMathExpression {
+	if expression.Numerator.TypeID() == TypeIntegerExpression && expression.Denominator.TypeID() == TypeIntegerExpression {
+		a := expression.Numerator.N()
+		b := expression.Denominator.N()
 
 		result, _ := a.Divide(b)
 
 		return result
 	}
-	return expr
+	return expression
 }
 
 // ToString convert current expression to string.
-func (expr FracExpression) String() string {
-	return fmt.Sprintf("%s/%s", expr.Numerator, expr.Denominator)
+func (expression FracExpression) String() string {
+	return fmt.Sprintf("%s/%s", expression.Numerator, expression.Denominator)
 }
 
 // TypeID return an identificator for this type.
-func (expr FracExpression) TypeID() TypeExpression {
+func (expression FracExpression) TypeID() TypeExpression {
 	return TypeFracExpression
 }

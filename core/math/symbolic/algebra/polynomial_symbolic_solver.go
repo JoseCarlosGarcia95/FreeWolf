@@ -32,8 +32,10 @@ func PolynomialSymbolicSolver2th(expression atoms.IMathExpression, symbol atoms.
 	a := GetCoefficientByDegree(expression, 2, symbol)
 
 	divisor := atoms.NewIntegerFromInteger(2).Multiply(a)
-	discriminant := atoms.ExponentExpression{Base: b, Exponent: atoms.NewIntegerFromInteger(2)}.
-		Substract(atoms.NewIntegerFromInteger(4).Multiply(b).Multiply(c))
+
+	discriminant, _ := atoms.ExponentExpression{Base: b, Exponent: atoms.NewIntegerFromInteger(2)}.
+		Substract(atoms.NewIntegerFromInteger(4).Multiply(a).Multiply(c)).Evaluate()
+
 	discriminant = atoms.ExponentExpression{Base: discriminant, Exponent: atoms.NewFracFromIntegers(1, 2)}
 
 	solution1 := atoms.NewIntegerFromInteger(-1).Multiply(b).Substract(discriminant)

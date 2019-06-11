@@ -55,10 +55,7 @@ func (expression CoefficientExpression) Sum(add IMathExpression) IMathExpression
 			Base:        expression.Base}
 	}
 
-	new := MathExpression{}.Sum(expression)
-	new = new.Sum(add)
-
-	return new
+	return MathExpression{}.Sum(expression).Sum(add)
 }
 
 // Substract return the substract of two math expression.
