@@ -5,12 +5,12 @@
 </p>
 
 ## Table of contents
-- [FreeWolf](#freewolf)
-	- [Table of contents](#table-of-contents)
-	- [Status](#status)
-	- [Features](#features)
-		- [_Legends_](#legends)
-	- [License](#license)
+- [FreeWolf](#FreeWolf)
+	- [Table of contents](#Table-of-contents)
+	- [Status](#Status)
+	- [Features](#Features)
+		- [_Legends_](#Legends)
+	- [License](#License)
 
 ## Status
  [![Build Status](https://travis-ci.org/JoseCarlosGarcia95/FreeWolf.svg?branch=master)](https://travis-ci.org/JoseCarlosGarcia95/FreeWolf)
