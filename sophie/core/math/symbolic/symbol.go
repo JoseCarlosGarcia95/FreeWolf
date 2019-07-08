@@ -19,6 +19,8 @@ const (
 // Symbol represent basic symbol representation.
 type Symbol interface {
 	Childs() []Symbol
+	Append(Symbol, atoms.Number) Symbol
 	Factors() []atoms.Number
 	Type() SymbolType
+	String() string
 }

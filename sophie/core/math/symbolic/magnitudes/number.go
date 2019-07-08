@@ -10,22 +10,39 @@ type Number struct {
 	value atoms.Number
 }
 
+// NewSymbolicNumber return a new number.
+func NewSymbolicNumber() Number {
+	return NewSymbolicNumberFromInteger(0)
+}
+
+// NewSymbolicNumberFromInteger return a new number initialize by integer.
+func NewSymbolicNumberFromInteger(num int64) Number {
+	return NewSymbolicNumberFromNumber(atoms.NewComplexFromInteger(num))
+}
+
+// NewSymbolicNumberFromNumber return a symbolic number.
+func NewSymbolicNumberFromNumber(num atoms.Number) Number {
+	newNumber := Number{}
+	newNumber.value = num
+	return newNumber
+}
+
 // Val return numeric value of variable
-func (num *Number) Val() atoms.Number {
+func (num Number) Val() atoms.Number {
 	return num.value
 }
 
 // Set numeric value of variable
-func (num *Number) Set(value atoms.Number) {
+func (num Number) Set(value atoms.Number) {
 	num.value = value
 }
 
 // Type return terms type.
-func (num Number) Type() symbolic.TermsType {
-	return symbolic.TermsTypeNumber
+func (num Number) Type() symbolic.SymbolType {
+	return symbolic.SymbolTypeNumber
 }
 
 // String return string representation.
 func (num Number) String() string {
-	return num.String()
+	return num.value.String()
 }

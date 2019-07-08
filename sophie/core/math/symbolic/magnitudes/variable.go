@@ -12,18 +12,18 @@ type Variable struct {
 }
 
 // Val return numeric value of variable
-func (variable *Variable) Val() atoms.Number {
+func (variable Variable) Val() atoms.Number {
 	return variable.value
 }
 
 // Set numeric value of variable
-func (variable *Variable) Set(value atoms.Number) {
+func (variable Variable) Set(value atoms.Number) {
 	variable.value = value
 }
 
 // Type return terms type.
-func (variable Variable) Type() symbolic.TermsType {
-	return symbolic.TermsTypeVariable
+func (variable Variable) Type() symbolic.SymbolType {
+	return symbolic.SymbolTypeVariable
 }
 
 // String return string representation.
