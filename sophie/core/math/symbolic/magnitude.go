@@ -4,5 +4,5 @@ package symbolic
 type Magnitude interface {
 	Terms
 	Val() interface{}
-	Set(val interface{})
+	Set(val interface{}) Magnitude
 }

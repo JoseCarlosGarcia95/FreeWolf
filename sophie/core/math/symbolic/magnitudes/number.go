@@ -28,13 +28,14 @@ func NewSymbolicNumberFromNumber(num atoms.Number) Number {
 }
 
 // Val return numeric value of variable
-func (num Number) Val() atoms.Number {
+func (num Number) Val() interface{} {
 	return num.value
 }
 
 // Set numeric value of variable
-func (num Number) Set(value atoms.Number) {
-	num.value = value
+func (num Number) Set(value interface{}) symbolic.Magnitude {
+	num.value = value.(atoms.Number)
+	return num
 }
 
 // Type return terms type.

@@ -17,8 +17,9 @@ func (variable Variable) Val() atoms.Number {
 }
 
 // Set numeric value of variable
-func (variable Variable) Set(value atoms.Number) {
+func (variable Variable) Set(value atoms.Number) Variable {
 	variable.value = value
+	return variable
 }
 
 // Type return terms type.

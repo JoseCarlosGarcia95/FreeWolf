@@ -11,7 +11,7 @@ import (
 // Product represent symbolic product
 type Product struct {
 	childs  []symbolic.Symbol
-	factors []atoms.Number
+	factors []symbolic.Magnitude
 	terms   symbolic.Terms
 }
 
@@ -19,7 +19,7 @@ type Product struct {
 func NewProduct() symbolic.Symbol {
 	product := Product{}
 	product.childs = make([]symbolic.Symbol, 0)
-	product.factors = make([]atoms.Number, 0)
+	product.factors = make([]symbolic.Magnitude, 0)
 	product.terms = magnitudes.NewSymbolicNumber()
 	return product
 }
@@ -36,15 +36,36 @@ func (product Product) Childs() []symbolic.Symbol {
 	return product.childs
 }
 
+// Add sum a magnitude.
+func (product Product) Add(magn symbolic.Magnitude) symbolic.Symbol {
+	newSum := NewSum().(Sum)
+	newSum.terms = magn
+
+	return product.AppendNumber(newSum, atoms.NewComplexFromInteger(1))
+}
+
+// Multiply product a magnitude.
+func (product Product) Multiply(magn symbolic.Magnitude) symbolic.Symbol {
+	newProduct := NewProduct().(Product)
+	newProduct.terms = magn
+
+	return product.AppendNumber(newProduct, atoms.NewComplexFromInteger(1))
+}
+
+// AppendNumber append a new symbol to child.
+func (product Product) AppendNumber(sym symbolic.Symbol, num atoms.Number) symbolic.Symbol {
+	return product.Append(sym, magnitudes.NewSymbolicNumberFromNumber(num))
+}
+
 // Append append a new symbol to child.
-func (product Product) Append(sym symbolic.Symbol, num atoms.Number) symbolic.Symbol {
+func (product Product) Append(sym symbolic.Symbol, magn symbolic.Magnitude) symbolic.Symbol {
 	product.childs = append(product.childs, sym)
-	product.factors = append(product.factors, num)
+	product.factors = append(product.factors, magn)
 	return product
 }
 
 // Factors return factors of product.
-func (product Product) Factors() []atoms.Number {
+func (product Product) Factors() []symbolic.Magnitude {
 	return product.factors
 }
 
@@ -55,6 +76,16 @@ func (product Product) Type() symbolic.SymbolType {
 	}
 
 	return product.terms.Type()
+}
+
+// Term return term
+func (product Product) Term() symbolic.Terms {
+	return product.terms
+}
+
+// Evaluate eval expression.
+func (product Product) Evaluate() symbolic.Symbol {
+	return product
 }
 
 // String return a string representation
@@ -73,9 +104,12 @@ func (product Product) String() string {
 			factor := product.factors[i]
 			printFactor := true
 
-			if factor.IsReal() {
-				cmp, _ := factor.Compare(atoms.ComplexOne)
-				printFactor = cmp != 0
+			switch factor.(type) {
+			case magnitudes.Number:
+				if factor.Val().(atoms.Number).IsReal() {
+					cmp, _ := factor.Val().(atoms.Number).Compare(atoms.ComplexOne)
+					printFactor = cmp != 0
+				}
 			}
 
 			sb.WriteString("*")

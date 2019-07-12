@@ -1,7 +1,5 @@
 package symbolic
 
-import "github.com/JoseCarlosGarcia95/FreeWolf/sophie/core/math/symbolic/atoms"
-
 // SymbolType represent different symbol types.
 type SymbolType uint8
 
@@ -19,8 +17,16 @@ const (
 // Symbol represent basic symbol representation.
 type Symbol interface {
 	Childs() []Symbol
-	Append(Symbol, atoms.Number) Symbol
-	Factors() []atoms.Number
+	Append(Symbol, Magnitude) Symbol
+	Factors() []Magnitude
 	Type() SymbolType
+	Term() Terms
+
+	Add(Magnitude) Symbol
+
+	Multiply(Magnitude) Symbol
+
+	Evaluate() Symbol
+
 	String() string
 }
